@@ -1,9 +1,11 @@
 # git-peek
 
-`git peek` is the fastest way to open a remote Git repository with your local text editor. Use it when you want to browse or search other people's code with your own editor.
+`git peek` is the fastest way to open a remote Git repository with your local text editor.
 
 <!-- <video autoplay muted type="video/mp4" src="demo.mp4" autoplay loop muted playsinline width="960" height="600" /> -->
 <img src="demo.gif" height="400" />
+
+Use it when you want to browse or search other people's code with your own editor.
 
 ## Installation:
 
@@ -17,7 +19,7 @@ npm install -g @jarred/git-peek
 git peek https://github.com/Jarred-Sumner/git-peek
 ```
 
-Pass `git peek` a git repository or a github link, and it will quickly fetch and open it in your local editor. It stores the repository in a temporary directory and deletes it when you close the editor.
+Pass `git peek` a git repository or a github link, and it will quickly fetch and open it in your local editor. It stores the repository in a temporary directory and deletes it when you close the editor or `git peek`.
 
 It's fast.
 
