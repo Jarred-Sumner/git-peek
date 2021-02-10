@@ -15,6 +15,25 @@ if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
 }
 
+let didRemove = false;
+let tmpobj;
+let slowTask;
+
+let instance: Command;
+
+function doExit() {
+  if (!didRemove) {
+    tmpobj?.removeCallback();
+    didRemove = true;
+    instance?.log("🗑 Deleted temp repo");
+  }
+
+  if (instance?.slowTask) {
+    instance.slowTask.kill("SIGHUP");
+    instance.slowTask = null;
+  }
+}
+
 const start = new Date().getTime();
 
 class Command {
@@ -53,12 +72,12 @@ class Command {
   slowTask: childProcess.ChildProcess = null;
 
   unzip(source: string, to: string) {
-    const git = `cd "${to}"; wget ${source} -O git.zip && bsdtar --strip-components=1 -xvf git.zip && rm git.zip`;
+    const git = `cd "${to}"; curl -L ${source} | bsdtar --strip-components=1 -xvf - -C "${to}"`;
     this.log(`Downloading ${source} to temp folder...`);
     return new Promise((resolve, reject) => {
       this.didFinish = false;
-      const child = childProcess.exec(git);
-      child.stdout.unpipe(process.stdout);
+      const child = childProcess.exec(git, { cwd: to, env: process.env });
+      child.stdout.pipe(process.stdout);
       child.stderr.pipe(process.stderr);
       this.slowTask = child;
       child.once("close", () => {
@@ -192,23 +211,14 @@ class Command {
       return;
     }
 
-    let tmpobj = tmp.dirSync({
+    tmpobj = tmp.dirSync({
       unsafeCleanup: true,
     });
 
-    let didRemove = false;
-    process.on("beforeExit", () => {
-      if (!didRemove) {
-        tmpobj.removeCallback();
-        didRemove = true;
-        this.log("🗑 Deleted temp repo");
-      }
-
-      if (this.slowTask) {
-        this.slowTask.kill("SIGHUP");
-        this.slowTask = null;
-      }
-    });
+    didRemove = false;
+    process.once("beforeExit", doExit);
+    process.once("SIGABRT", doExit);
+    process.once("SIGQUIT", doExit);
     let ref = link.ref;
 
     if (!ref) {
@@ -282,12 +292,6 @@ class Command {
     const cmd = `${chosenEditor} "${path.join(
       tmpobj.name
     )}" ${editorSpecificCommands.join(" ")}`.trim();
-    this.log(
-      `--\n💻 Launched editor in ${(
-        (new Date().getTime() - start) /
-        1000
-      ).toFixed(2)}s\n--`
-    );
 
     await new Promise((resolve, reject) => {
       childProcess.exec(
@@ -298,6 +302,12 @@ class Command {
           cwd: tmpobj.name,
         },
         (err, res) => (err ? reject(err) : resolve(res))
+      );
+      this.log(
+        `--\n💻 Launched editor in ${(
+          (new Date().getTime() - start) /
+          1000
+        ).toFixed(2)}s\n--`
       );
     });
 
@@ -313,4 +323,5 @@ class Command {
   }
 }
 
-new Command().run();
+instance = new Command();
+instance.run();
