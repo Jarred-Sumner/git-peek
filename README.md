@@ -2,7 +2,8 @@
 
 `git peek` is the fastest way to open a remote Git repository with your local text editor.
 
-<video autoplay muted type="video/mp4" src="demo.mp4" autoplay loop muted playsinline width="960" height="600" />
+<!-- <video autoplay muted type="video/mp4" src="demo.mp4" autoplay loop muted playsinline width="960" height="600" /> -->
+<img src="demo.gif" width="960" height="600" />
 
 ```
 git peek https://github.com/Jarred-Sumner/git-peek
