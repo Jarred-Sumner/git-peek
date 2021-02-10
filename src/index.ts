@@ -212,7 +212,7 @@ class Command {
     let ref = link.ref;
 
     if (!ref) {
-      ref = "master";
+      ref = "main";
     }
 
     let specificFile = link.filepath;
