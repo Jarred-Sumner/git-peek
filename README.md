@@ -17,6 +17,8 @@ npm install -g @jarred/git-peek
 git peek https://github.com/Jarred-Sumner/git-peek
 ```
 
+Pass `git peek` a git repository or a github link, and it will quickly fetch it and open it in your local editor. It stores the repository in a temporary directory and deletes it when you close the editor.
+
 It's fast.
 
 ```bash
