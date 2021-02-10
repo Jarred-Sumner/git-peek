@@ -1,32 +1,30 @@
 {
-  "name": "git-peek",
-  "version": "0.0.1",
+  "name": "@jarred/git-peek",
+  "version": "1.0.0",
   "author": "Jarred Sumner @Jarred-Sumner",
-  "description": "Preview Git repositories in your local editor in a temp directory.",
+  "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
     "git-peek": "./bin/git-peek"
   },
   "bugs": "https://github.com/Jarred-Sumner/git-peek/issues",
   "devDependencies": {
-    "@oclif/command": "^1.8.0",
-    "@oclif/config": "^1.17.0",
-    "@oclif/dev-cli": "^1.26.0",
-    "@oclif/plugin-help": "^3.2.2",
     "@types/node": "latest",
-    "typescript": "beta",
     "@vercel/fetch": "^6.1.0",
     "esbuild": "^0.8.43",
     "git-url-parse": "^11.4.4",
     "node-fetch": "^2.6.1",
     "normalize-git-url": "^3.0.2",
     "open-editor": "^3.0.0",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.1",
+    "typescript": "beta",
+    "meow": "^9.0.0",
+    "promise-any-polyfill": "^0.1.2"
   },
   "engines": {
     "node": ">=10.0.0"
   },
   "files": [
-    "/bin"
+    "bin/git-peek"
   ],
   "homepage": "https://github.com/Jarred-Sumner/git-peek",
   "keywords": [
@@ -38,12 +36,6 @@
   ],
   "license": "MIT",
   "main": "lib/index.js",
-  "oclif": {
-    "bin": "git-peek",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
-  },
   "repository": "Jarred-Sumner/git-peek",
   "scripts": {
     "build": "node build.js",

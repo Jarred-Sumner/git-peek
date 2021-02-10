@@ -20,10 +20,28 @@ It's fast.
 💻 Launched editor in 0.20s
 ```
 
+```bash
+❯ git peek -h
+Quickly open a remote Git repository with your local text editor into a temporary folder.
+
+USAGE
+  $ git-peek [git link or github link]
+
+OPTIONS
+  -e, --editor=editor  [default: auto] editor to open with, possible values:
+                       auto, code, vim, subl. By default, it will search
+                       $EDITOR. If not found, it will try code, then subl,
+                       then vim.
+
+  -h, --help           show CLI help
+
+  -v, --version        show CLI version
+```
+
 ## Installation:
 
 ```
-npm install -g git-peek
+npm install -g @jarred/git-peek
 ```
 
 ## How does this work?

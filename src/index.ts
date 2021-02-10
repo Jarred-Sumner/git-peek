@@ -1,35 +1,29 @@
 #!/usr/bin/env node
 
-import { Command, flags } from "@oclif/command";
-import tmp from "tmp";
-import parse from "git-url-parse";
-import normalize from "normalize-git-url";
-import childProcess from "child_process";
-import openEditor from "open-editor";
-import path from "path";
-import * as _fetch from "node-fetch";
 import createFetcher from "@vercel/fetch";
+import childProcess from "child_process";
+import fs from "fs";
+import parse from "git-url-parse";
+import * as _fetch from "node-fetch";
+import path from "path";
+import tmp from "tmp";
+import meow from "meow";
 
 const fetch = createFetcher(_fetch);
 
-import fs from "fs";
+if (typeof Promise.any !== "function") {
+  require("promise-any-polyfill");
+}
+
 const start = new Date().getTime();
 
-export class GitView extends Command {
+class Command {
+  log(text) {
+    console.log(text);
+  }
   static description =
     "Quickly open a remote Git repository with your local text editor into a temporary folder.";
   static usage = "[git link or github link]";
-
-  static flags = {
-    // add --version flag to show CLI version
-    version: flags.version({ char: "v" }),
-    help: flags.help({ char: "h" }),
-    editor: flags.string({
-      char: "e",
-      default: "auto",
-      description: `editor to open with, possible values: auto, code, vim, subl. By default, it will search $EDITOR. If not found, it will try code, then subl, then vim.`,
-    }),
-  };
 
   static args = [{ name: "url" }];
 
@@ -107,13 +101,73 @@ export class GitView extends Command {
     });
   }
 
-  async run() {
-    const {
-      args,
-      flags: { editor: _editor = "auto", help, version },
-    } = this.parse(GitView);
+  parse() {
+    const cli = meow(
+      `
+      USAGE
+        $ git-peek [git link or github link]
 
-    const { url } = args;
+      EXAMPLES
+        git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
+        git peek https://github.com/ylukem/pin-go
+        git peek https://github.com/jarred-sumner/atbuild
+
+      OPTIONS
+        -e, --editor=editor  [default: auto] editor to open with, possible values:
+                             auto, code, vim, subl. By default, it will search
+                             $EDITOR. If not found, it will try code, then subl,
+                             then vim.
+
+        -h, --help           show CLI help
+
+    `.trim() + "\n",
+      {
+        flags: {
+          help: {
+            type: "boolean",
+            default: false,
+            alias: "h",
+            isRequired: false,
+          },
+          version: {
+            type: "boolean",
+            default: false,
+            alias: "v",
+            isRequired: false,
+          },
+          editor: {
+            type: "string",
+            isMultiple: false,
+            isRequired: false,
+            default: "auto",
+            alias: "e",
+            description: `editor to open with, possible values: auto, code, vim, subl. By default, it will search $EDITOR. If not found, it will try code, then subl, then vim.`,
+          },
+        },
+      }
+    );
+
+    return cli;
+  }
+
+  async run() {
+    const cli = this.parse();
+    const { help, version } = cli.flags;
+    const url = cli.input[0];
+    if (help) {
+      cli.showHelp(0);
+      process.exit(0);
+    }
+
+    if (version) {
+      cli.showVersion();
+      process.exit(0);
+    }
+
+    const {
+      flags: { editor: _editor = "auto" },
+    } = cli;
+
     if (!url || !url.trim().length) {
       this.log(`🔗❓ No link. Please paste a git link or a github link.\n`);
       this.log(
@@ -259,4 +313,4 @@ export class GitView extends Command {
   }
 }
 
-GitView.run().catch(require("@oclif/errors/handle"));
+new Command().run();
