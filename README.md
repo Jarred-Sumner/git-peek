@@ -2,12 +2,18 @@
 
 `git peek` is the fastest way to open a remote Git repository with your local text editor.
 
-![./demo.gif]
-
-## Usage:
+<img src="demo.gif" width="400" height="350" />
 
 ```
 git peek https://github.com/Jarred-Sumner/git-peek
+```
+
+## Usage:
+
+## Installation:
+
+```
+npm install -g @jarred/git-peek
 ```
 
 It's fast.
@@ -38,12 +44,6 @@ OPTIONS
   -h, --help           show CLI help
 
   -v, --version        show CLI version
-```
-
-## Installation:
-
-```
-npm install -g @jarred/git-peek
 ```
 
 ## How does this work?
