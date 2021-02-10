@@ -16,7 +16,9 @@ import fs from "fs";
 const start = new Date().getTime();
 
 export class GitView extends Command {
-  static description = "describe the command here";
+  static description =
+    "Quickly open a remote Git repository with your local text editor into a temporary folder.";
+  static usage = "[git link or github link]";
 
   static flags = {
     // add --version flag to show CLI version
@@ -108,21 +110,16 @@ export class GitView extends Command {
   async run() {
     const {
       args,
-      flags: { editor: _editor = "auto" },
+      flags: { editor: _editor = "auto", help, version },
     } = this.parse(GitView);
 
     const { url } = args;
     if (!url || !url.trim().length) {
-      this.error(
-        `🔗❓ Missing Link. Please paste a git link or a github link.\n`,
-        {
-          exit: false,
-        }
-      );
+      this.log(`🔗❓ No link. Please paste a git link or a github link.\n`);
       this.log(
-        "For example:\ngit view https://github.com/jarred-sumner/git-peek"
+        "For example:\n   git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts"
       );
-      this.exit(1);
+      process.exit(1);
       return;
     }
 
@@ -131,16 +128,13 @@ export class GitView extends Command {
     try {
       link = parse(url);
     } catch (exception) {
-      this.error(
-        `🔗🥺 Invalid Link. Please paste a git link or a github link.\nFor example:\ngit view https://github.com/jarred-sumner/git-peek`,
-        {
-          exit: false,
-        }
+      this.log(
+        `🔗❓ Invalid link. Please paste a git link or a github link.\n`
       );
       this.log(
-        "For example:\ngit view https://github.com/jarred-sumner/git-peek"
+        "For example:\n   git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts"
       );
-      this.exit(1);
+      process.exit(1);
       return;
     }
 
@@ -192,10 +186,7 @@ export class GitView extends Command {
         )),
       ]);
     } else {
-      await this.clone(
-        `https://github.com/${link.owner}/${link.name}.git`,
-        tmpobj.name
-      );
+      await this.clone(link.href, tmpobj.name);
     }
 
     let chosenEditor =

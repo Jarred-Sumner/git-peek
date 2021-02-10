@@ -30,12 +30,19 @@
   ],
   "homepage": "https://github.com/Jarred-Sumner/git-peek",
   "keywords": [
-    "oclif"
+    "git-peek",
+    "git",
+    "github",
+    "preview git",
+    "editor"
   ],
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
-    "bin": "git-peek"
+    "bin": "git-peek",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
   },
   "repository": "Jarred-Sumner/git-peek",
   "scripts": {
