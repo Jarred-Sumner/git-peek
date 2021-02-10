@@ -235,7 +235,7 @@ class Command {
           openPath
         ).catch(console.error),
         (definitelyWait = this.unzip(
-          `https://github.com/${link.owner}/${link.name}/zipball/${ref}`,
+          `https://github.com/${link.owner}/${link.name}/archive/${ref}.zip`,
           tmpobj.name
         )),
       ]);

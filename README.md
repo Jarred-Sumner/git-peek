@@ -1,6 +1,8 @@
 # git-peek
 
-Quickly open a remote Git repository with your local text editor into a temporary folder.
+`git peek` is the fastest way to open a remote Git repository with your local text editor.
+
+![./demo.gif]
 
 ## Usage:
 
