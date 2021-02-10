@@ -53,7 +53,7 @@ If you pass it a GitHub repository, it fetches a tarball instead of using git. F
 
 If you pass it a git repository rather than a Github url, it does a [partial clone](https://github.blog/2020-12-21-get-up-to-speed-with-partial-clone-and-shallow-clone/) instead of doing a full clone.
 
-When your editor closes or you close `git view`, it deletes the repository from your computer.
+When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
 This was inspired by github1s.com.
 
