@@ -33,6 +33,8 @@ function doExit() {
   }
 }
 
+process.on("SIGINT", doExit);
+
 class Command {
   log(text) {
     console.log(text);
