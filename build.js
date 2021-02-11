@@ -7,5 +7,5 @@ build({
   outfile: "./bin/git-peek",
   platform: "node",
   external: ["path", "fs", "child_process"],
-  minify: false,
+  minify: true,
 }).then((a) => console.log("Built."));
