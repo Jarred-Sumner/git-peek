@@ -247,12 +247,20 @@ class Command {
 
     let link;
 
+    let isMalformed = false;
     if (!url.includes("://") && url.split("/").length === 2) {
       const [owner, repo] = url.split("/");
-      url = `https://github.com/${owner}/${repo}`;
+
+      if (repo.trim().length) {
+        url = `https://github.com/${owner}/${repo}`;
+      } else {
+        isMalformed = true;
+      }
     }
 
-    let isMalformed = !url || !url.includes("/") || url.includes(" ");
+    if (!isMalformed) {
+      isMalformed = !url || !url.includes("/") || url.includes(" ");
+    }
 
     while (!link) {
       if (isMalformed) {
