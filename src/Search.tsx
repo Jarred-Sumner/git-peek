@@ -127,9 +127,10 @@ export const SearchInput = ({ onSelect, initialQuery = "" }) => {
     }
   }, [results, lastResults]);
 
-  const onSelectItem = React.useCallback((item) => onSelect(item.value), [
-    onSelect,
-  ]);
+  const onSelectItem = React.useCallback(
+    (item) => item?.value && onSelect(item.value),
+    [onSelect]
+  );
 
   return (
     <>

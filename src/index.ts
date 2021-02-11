@@ -23,22 +23,39 @@ let instance: Command;
 function doExit() {
   if (!didRemove) {
     tmpobj?.removeCallback();
+    tmpobj = null;
     didRemove = true;
-    this.log("🗑  Deleted temp repo");
+    console.log("🗑  Deleted temp repo");
+  }
+
+  if (instance?.archive?.destroy) {
+    instance?.archive.destroy();
+  }
+
+  if (instance?._tar) {
+    instance?._tar.removeAllListeners();
   }
 
   if (instance?.slowTask) {
-    instance.slowTask.kill("SIGHUP");
+    instance.slowTask.removeAllListeners();
     instance.slowTask = null;
+  }
+
+  if (instance?.destination?.length && fs.existsSync(instance.destination)) {
+    fs.rmSync(instance.destination, {
+      recursive: true,
+      force: true,
+    });
   }
 }
 
-process.on("SIGINT", doExit);
+process.once("SIGINT", doExit);
 
 class Command {
   log(text) {
     console.log(text);
   }
+  destination: string;
   static description =
     "Quickly open a remote Git repository with your local text editor into a temporary folder.";
   static usage = "[git link or github link]";
@@ -106,6 +123,7 @@ class Command {
     }
   }
   didUseFallback = false;
+  _tar: NodeJS.WritableStream;
   async unzip(owner, name, ref, fallback, to: string) {
     const archive = await this.getArchive(
       `https://api.github.com/repos/${owner}/${name}/tarball/${ref}`,
@@ -113,24 +131,26 @@ class Command {
     );
 
     this.log("⏳ Extracting repository to temp folder...");
-
     archive.pipe(
-      tar.x({
+      (this._tar = tar.x({
         cwd: to,
         strip: 1,
         onentry(entry) {},
         onwarn(message, data) {
           console.warn(message);
         },
-      })
+      }))
     );
 
     return await new Promise((resolve, reject) => {
       archive.on("end", () => {
+        this._tar = null;
         this.log("💿 Finished downloading repository!");
         resolve();
       });
       archive.on("error", (error) => {
+        if (didRemove) return;
+
         this.log("💿 Failed to download repository!");
         reject(error);
       });
@@ -208,7 +228,7 @@ class Command {
 
     return cli;
   }
-
+  archive: NodeJS.ReadableStream;
   async getArchive(source: string, fallbackSource: string) {
     let archive: NodeJS.ReadableStream;
     try {
@@ -226,6 +246,7 @@ class Command {
       }
     }
 
+    this.archive = archive;
     return archive;
   }
 
@@ -287,6 +308,7 @@ class Command {
     tmpobj = tmp.dirSync({
       unsafeCleanup: true,
     });
+    this.destination = tmpobj.name;
 
     didRemove = false;
     process.once("beforeExit", doExit);
@@ -383,15 +405,7 @@ class Command {
       );
     });
 
-    if (this.slowTask && !this.slowTask.killed) {
-      this.slowTask.kill("SIGHUP");
-      this.slowTask = null;
-    }
-
-    tmpobj.removeCallback();
-    didRemove = true;
-    this.log("🗑  Deleted temp repo");
-    process.exit(0);
+    doExit();
   }
 }
 
