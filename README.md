@@ -30,11 +30,7 @@ It's fast.
 
 ```bash
 ❯ git peek https://github.com/nodejs/node/blob/master/lib/dgram.js
-# Downloading https://github.com/nodejs/node/zipball/master to temp folder...
-# --2021-02-10 04:56:46--  https://github.com/nodejs/node/zipball/master
-# Resolving github.com (github.com)... 192.30.255.112
-# Connecting to github.com (github.com)|192.30.255.112|:443... connected.
-# HTTP request sent, awaiting response...
+⏳ Extracting repository to temp folder...
 💻 Launched editor in 0.20s
 ```
 
