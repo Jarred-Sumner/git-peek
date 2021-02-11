@@ -66,6 +66,15 @@ Search Github repositories:
   geist-org/react          | Modern and minimalist React UI library.
 ```
 
+If you paste a link to a file on GitHub, it will quickly open the file in your local editor:
+
+```
+❯ git peek https://github.com/Jarred-Sumner/git-peek/blob/main/src/index.ts
+💻 Launched editor in 0.39s
+⏳ Extracting repository to temp folder...
+💿 Finished downloading repository!
+```
+
 ```bash
 ❯ git peek -h
 USAGE
