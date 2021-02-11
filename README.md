@@ -1,6 +1,6 @@
 # git-peek
 
-`git peek` is the fastest way to open a remote Git repository with your local text editor.
+`git peek` is the fastest way to open a remote git repository in your local text editor.
 
 <!-- <video autoplay muted type="video/mp4" src="demo.mp4" autoplay loop muted playsinline width="960" height="600" /> -->
 <img src="demo.gif" height="400" />
@@ -34,7 +34,9 @@ It's fast.
 💻 Launched editor in 0.20s
 ```
 
-If you don't pass `git peek` any input, it will let you search Github repositories and show [trending repositories](https://trends.now.sh):
+Much faster than cloning.
+
+If you don't pass `git peek` input, it will let you search Github repositories and show [trending repositories](https://trends.now.sh):
 
 ```
 ❯ git peek

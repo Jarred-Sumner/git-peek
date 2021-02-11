@@ -25,6 +25,11 @@ const ItemComponent = ({
 );
 
 let query = { q: "", limit: 20, per_page: 8 };
+const githubOptions = {
+  headers: {
+    Accept: "application/vnd.github.v3+json",
+  },
+};
 
 async function getDefaultData() {
   const resp = await fetch("https://trends.now.sh/api/repos");
@@ -60,11 +65,7 @@ async function searchGithubRepository(
   } else {
     resp = await fetch(
       `https://api.github.com/search/repositories?${qs.stringify(query)}`,
-      {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
+      githubOptions
     );
 
     if (resp.ok) {
