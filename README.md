@@ -16,7 +16,12 @@ npm install -g @jarred/git-peek
 ## Usage:
 
 ```
-git peek https://github.com/Jarred-Sumner/git-peek
+git peek https://github.com/ylukem/pin-go
+git peek https://github.com/jarred-sumner/atbuild
+git peek hanford/trends
+git peek react
+git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
+git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
 ```
 
 Pass `git peek` a git repository or a github link, and it will quickly fetch and open it in your local editor. It stores the repository in a temporary directory and deletes it when you close the editor or `git peek`.
@@ -33,22 +38,50 @@ It's fast.
 💻 Launched editor in 0.20s
 ```
 
+If you don't pass `git peek` any input, it will let you search Github repositories and show [trending repositories](https://trends.now.sh):
+
+```
+❯ git peek
+Search Github repositories:
+> Search
+❯ iam-abbas/Reddit-Stock-T | Fetch currently trending stocks on Reddit
+  codeSTACKr/free-develope | Free Developer Resources
+  justjavac/1s             | 天若有情天亦老，我为网站加一秒
+  PaddlePaddle/PaddleNLP   | NLP Core Library and Model Zoo based on PaddlePa
+  ModernPwner/cicuta_viros |
+  jevakallio/vscode-live-f | Run your web app inside VS Code
+  getActivity/AndroidCodeS | Android 代码规范文档
+  gigantz/react-xpress     | React renderer to build Node.js server
+```
+
+If you type a repository name without the owner (`react` instead of `facebook/react`), it will search:
+
+```
+❯ git peek react
+Search Github repositories:
+> react
+❯ facebook/react           | A declarative, efficient, and flexible JavaScrip
+  typescript-cheatsheets/r | Cheatsheets for experienced React developers get
+  duxianwei520/react       |  React+webpack+redux+ant design+axios+less全家桶后台管
+  discountry/react         | React docs in Chinese | React 中文文档翻译
+  Cathy0807/react          | 京东首页构建
+  react-redux-antd-es6/rea | 基于react的企业后台管理开发框架
+  HackYourFuture/React     | This repository contains all the material for th
+  geist-org/react          | Modern and minimalist React UI library.
+```
+
 ```bash
 ❯ git peek -h
-Quickly open a remote Git repository with your local text editor into a temporary folder.
-
 USAGE
-  $ git-peek [git link or github link]
+  $ git-peek [git link or github link or search query or repository file path]
 
 OPTIONS
   -e, --editor=editor  [default: auto] editor to open with, possible values:
-                       auto, code, vim, subl. By default, it will search
-                       $EDITOR. If not found, it will try code, then subl,
-                       then vim.
+                        auto, code, vim, subl. By default, it will search
+                        $EDITOR. If not found, it will try code, then subl,
+                        then vim.
 
   -h, --help           show CLI help
-
-  -v, --version        show CLI version
 ```
 
 ## How does this work?

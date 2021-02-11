@@ -1,15 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --no-warnings
 
-import createFetcher from "@vercel/fetch";
 import childProcess from "child_process";
 import fs from "fs";
 import parse from "git-url-parse";
-import * as _fetch from "node-fetch";
-import path from "path";
-import tmp from "tmp";
 import meow from "meow";
-
-const fetch = createFetcher(_fetch);
+import path from "path";
+import { renderInk } from "src/Search";
+import tar from "tar";
+import tmp from "tmp";
+import { fetch } from "./fetch";
 
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
@@ -25,7 +24,7 @@ function doExit() {
   if (!didRemove) {
     tmpobj?.removeCallback();
     didRemove = true;
-    instance?.log("🗑 Deleted temp repo");
+    this.log("🗑  Deleted temp repo");
   }
 
   if (instance?.slowTask) {
@@ -33,8 +32,6 @@ function doExit() {
     instance.slowTask = null;
   }
 }
-
-const start = new Date().getTime();
 
 class Command {
   log(text) {
@@ -47,7 +44,7 @@ class Command {
   static args = [{ name: "url" }];
 
   didFinish = false;
-  async prefetchGithub(
+  async _prefetchGithub(
     repo: string,
     owner: string,
     filepath: string,
@@ -58,7 +55,15 @@ class Command {
       filepath || "README.md"
     }`;
 
-    const text = await (await fetch(url)).text();
+    const resp = await fetch(url, {
+      redirect: "follow",
+    });
+
+    if (!resp.ok || resp.status === 404) {
+      return false;
+    }
+
+    const text = await resp.text();
 
     if (text.trim().length) {
       await fs.promises.mkdir(path.dirname(destination), { recursive: true });
@@ -68,34 +73,64 @@ class Command {
 
     return false;
   }
+  prefetchGithub(
+    repo: string,
+    owner: string,
+    filepath: string,
+    ref: string,
+    fallback: string,
+    destination: string
+  ) {
+    return Promise.any([
+      this._prefetchGithub(repo, owner, filepath, ref, destination),
+      this._prefetchGithub(repo, owner, filepath, fallback, destination),
+    ]);
+  }
 
   slowTask: childProcess.ChildProcess = null;
 
-  unzip(source: string, to: string) {
-    const git = `cd "${to}"; curl -L ${source} | bsdtar --strip-components=1 -xvf - -C "${to}"`;
-    this.log(`Downloading ${source} to temp folder...`);
-    return new Promise((resolve, reject) => {
-      this.didFinish = false;
-      const child = childProcess.exec(git, { cwd: to, env: process.env });
-      child.stdout.pipe(process.stdout);
-      child.stderr.pipe(process.stderr);
-      this.slowTask = child;
-      child.once("close", () => {
-        this.didFinish = true;
-        this.slowTask = null;
+  search(input: string) {
+    return renderInk(input);
+  }
+
+  async _unzip(source: string) {
+    const response = await fetch(source, {
+      redirect: "follow",
+    });
+    if (response.ok) {
+      return response.body;
+    } else {
+      throw response.text();
+    }
+  }
+  didUseFallback = false;
+  async unzip(owner, name, ref, fallback, to: string) {
+    const archive = await this.getArchive(
+      `https://api.github.com/repos/${owner}/${name}/tarball/${ref}`,
+      `https://api.github.com/repos/${owner}/${name}/tarball/${fallback}`
+    );
+
+    this.log("⏳ Extracting repository to temp folder...");
+
+    archive.pipe(
+      tar.x({
+        cwd: to,
+        strip: 1,
+        onentry(entry) {},
+        onwarn(message, data) {
+          console.warn(message);
+        },
+      })
+    );
+
+    return await new Promise((resolve, reject) => {
+      archive.on("end", () => {
+        this.log("💿 Finished downloading repository!");
         resolve();
       });
-
-      child.once("exit", () => {
-        this.slowTask = null;
-        this.didFinish = true;
-        resolve();
-      });
-
-      child.once("error", (err) => {
-        this.slowTask = null;
-        this.didFinish = true;
-        reject(err);
+      archive.on("error", (error) => {
+        this.log("💿 Failed to download repository!");
+        reject(error);
       });
     });
   }
@@ -124,12 +159,15 @@ class Command {
     const cli = meow(
       `
       USAGE
-        $ git-peek [git link or github link]
+        $ git-peek [git link or github link or search query or repository file path]
 
       EXAMPLES
         git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
         git peek https://github.com/ylukem/pin-go
         git peek https://github.com/jarred-sumner/atbuild
+        git peek hanford/trends
+        git peek react
+        git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
 
       OPTIONS
         -e, --editor=editor  [default: auto] editor to open with, possible values:
@@ -169,10 +207,30 @@ class Command {
     return cli;
   }
 
+  async getArchive(source: string, fallbackSource: string) {
+    let archive: NodeJS.ReadableStream;
+    try {
+      archive = await this._unzip(source);
+    } catch (exception) {
+      try {
+        this.didUseFallback = true;
+        archive = await this._unzip(fallbackSource);
+      } catch (exception) {
+        console.error(
+          `Invalid repository link. Tried:\n-  ${source}\n-  ${fallbackSource}`
+        );
+        doExit();
+        process.exit();
+      }
+    }
+
+    return archive;
+  }
+
   async run() {
     const cli = this.parse();
     const { help, version } = cli.flags;
-    const url = cli.input[0];
+    let url = cli.input[0]?.trim() ?? "";
     if (help) {
       cli.showHelp(0);
       process.exit(0);
@@ -187,29 +245,34 @@ class Command {
       flags: { editor: _editor = "auto" },
     } = cli;
 
-    if (!url || !url.trim().length) {
-      this.log(`🔗❓ No link. Please paste a git link or a github link.\n`);
-      this.log(
-        "For example:\n   git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts"
-      );
-      process.exit(1);
-      return;
-    }
-
     let link;
 
-    try {
-      link = parse(url);
-    } catch (exception) {
-      this.log(
-        `🔗❓ Invalid link. Please paste a git link or a github link.\n`
-      );
-      this.log(
-        "For example:\n   git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts"
-      );
-      process.exit(1);
-      return;
+    if (!url.includes("://") && url.split("/").length === 2) {
+      const [owner, repo] = url.split("/");
+      url = `https://github.com/${owner}/${repo}`;
     }
+
+    let isMalformed = !url || !url.includes("/") || url.includes(" ");
+
+    while (!link) {
+      if (isMalformed) {
+        url = await this.search(url);
+        isMalformed = !url || !url.includes("/") || url.includes(" ");
+      }
+
+      try {
+        link = parse(url);
+      } catch (exception) {
+        try {
+          url = await this.search(url);
+          isMalformed = !url || !url.includes("/") || url.includes(" ");
+        } catch (exception) {
+          console.log(exception);
+        }
+      }
+    }
+
+    const start = new Date().getTime();
 
     tmpobj = tmp.dirSync({
       unsafeCleanup: true,
@@ -222,7 +285,7 @@ class Command {
     let ref = link.ref;
 
     if (!ref) {
-      ref = "main";
+      ref = "master";
     }
 
     let specificFile = link.filepath;
@@ -233,21 +296,20 @@ class Command {
 
     let openPath = path.join(tmpobj.name, specificFile);
 
-    let definitelyWait = null;
     // From a simple benchmark, unzip is 2x faster than git clone.
     if (link.resource === "github.com") {
+      let fallback = ref === "main" ? "master" : "main";
+
       await Promise.any([
         this.prefetchGithub(
           link.name,
           link.owner,
           specificFile,
           ref,
+          fallback,
           openPath
         ).catch(console.error),
-        (definitelyWait = this.unzip(
-          `https://github.com/${link.owner}/${link.name}/archive/${ref}.zip`,
-          tmpobj.name
-        )),
+        this.unzip(link.owner, link.name, ref, fallback, tmpobj.name),
       ]);
     } else {
       await this.clone(link.href, tmpobj.name);
@@ -294,7 +356,7 @@ class Command {
     )}" ${editorSpecificCommands.join(" ")}`.trim();
 
     await new Promise((resolve, reject) => {
-      childProcess.exec(
+      this.slowTask = childProcess.exec(
         cmd,
         {
           env: process.env,
@@ -304,24 +366,26 @@ class Command {
         (err, res) => (err ? reject(err) : resolve(res))
       );
       this.log(
-        `--\n💻 Launched editor in ${(
+        `💻 Launched editor in ${(
           (new Date().getTime() - start) /
           1000
-        ).toFixed(2)}s\n--`
+        ).toFixed(2)}s`
       );
     });
 
-    if (this.slowTask) {
+    if (this.slowTask && !this.slowTask.killed) {
       this.slowTask.kill("SIGHUP");
       this.slowTask = null;
     }
 
     tmpobj.removeCallback();
     didRemove = true;
-    this.log("\n✅ Deleted temp repo");
+    this.log("🗑  Deleted temp repo");
     process.exit(0);
   }
 }
 
+process.on("unhandledRejection", (reason) => console.error(reason));
+process.on("unhandledException", (reason) => console.error(reason));
 instance = new Command();
 instance.run();

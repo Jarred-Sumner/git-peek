@@ -1,6 +1,6 @@
 {
   "name": "@jarred/git-peek",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "author": "Jarred Sumner @Jarred-Sumner",
   "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
@@ -9,16 +9,26 @@
   "bugs": "https://github.com/Jarred-Sumner/git-peek/issues",
   "devDependencies": {
     "@types/node": "latest",
+    "@types/tar": "^4.0.4",
     "@vercel/fetch": "^6.1.0",
+    "chalk": "^4.1.0",
     "esbuild": "^0.8.43",
     "git-url-parse": "^11.4.4",
+    "ink": "^3.0.8",
+    "keypress": "^0.2.1",
+    "meow": "^9.0.0",
     "node-fetch": "^2.6.1",
     "normalize-git-url": "^3.0.2",
     "open-editor": "^3.0.0",
+    "promise-any-polyfill": "^0.1.2",
+    "qs": "^6.9.6",
+    "react": "^17.0.1",
+    "swr": "^0.4.2",
     "tmp": "^0.2.1",
     "typescript": "beta",
-    "meow": "^9.0.0",
-    "promise-any-polyfill": "^0.1.2"
+    "ink-select-input": "^4.2.0",
+    "ink-text-input": "^4.0.1",
+    "tar": "^6.1.0"
   },
   "engines": {
     "node": ">=10.0.0"
