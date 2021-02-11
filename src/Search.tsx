@@ -86,7 +86,7 @@ async function searchGithubRepository(
       const item = body.items[i];
 
       results[i] = {
-        value: `https://github.com/${item.full_name}.git#${item.default_branch}`,
+        value: `https://github.com/${item.full_name}/tree/${item.default_branch}`,
         label: item.full_name.slice(0, 24),
         description: item.description,
       };
