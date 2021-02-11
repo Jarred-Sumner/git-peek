@@ -100,5 +100,3 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
 This was inspired by github1s.com.
-
-Note: currently expects `wget` and `bsdtar` to be available in `$PATH`. If that's a problem, feel free to open an issue.
