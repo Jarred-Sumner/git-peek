@@ -103,6 +103,9 @@ This was inspired by github1s.com.
 
 ### Changelog
 
+- `1.1.21`: Add Pull Request support. Now you can use this to quickly read a pull request. For example: `git peek https://github.com/facebook/react/pull/20790`.
+- `1.1.20`: Fix bug when using with Fedora
+- `1.1.16-1.1.19`: trying to get `release-it` to work
 - `1.1.15`: Move `code-insiders` to end of preference list
 - `1.1.14`: Fix code-insiders and fix passing in editor manually when its `subl` or `code`.
 - `1.1.13`: Use `Authorization` header instead of `access_token` query string.

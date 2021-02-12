@@ -57,7 +57,7 @@
     "build": "node build.js",
     "test": "echo NO TESTS",
     "release": "dotenv release-it",
-    "postbuild": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek"
+    "prerelease": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek"
   },
   "release-it": {
     "git": {

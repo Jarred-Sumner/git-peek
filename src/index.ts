@@ -18,6 +18,38 @@ if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
 }
 
+// This will break if the github repo is called pull or if the organization is called pull
+function isPullRequest(url: string) {
+  if (!url.includes("github.com") || !url.includes("/pull/")) {
+    return false;
+  }
+
+  return true;
+}
+
+async function resolveRefFromPullRequest(url: string) {
+  let _url = url.replace("https://github.com", "");
+  const [__, owner, repo, _, pullRequestID] = _url.split("/");
+
+  const apiURL = `https://api.github.com/repos/${owner}/${repo}/pulls/${pullRequestID}`;
+
+  const result = await githubFetch(apiURL);
+  if (!result.ok) {
+    console.error(
+      "Failed to load pull request url: HTTP ",
+      result.status,
+      "\n",
+      await result.text()
+    );
+    process.exit();
+  }
+
+  const json = await result.json();
+
+  const { label, sha } = json.head;
+  return [label.split(":")[0], repo, sha];
+}
+
 let didRemove = false;
 let tmpobj;
 let slowTask;
@@ -32,6 +64,14 @@ enum EditorMode {
   vscode = 1,
   sublime = 2,
   vim = 3,
+}
+
+function githubFetch(url, options = null) {
+  const token = findGitHubToken();
+  if (token && !followRedirect.headers) {
+    followRedirect.headers = { authorization: `Bearer ${token}` };
+  }
+  return fetch(url, followRedirect);
 }
 
 function doExit() {
@@ -127,11 +167,7 @@ class Command {
   }
 
   async _unzip(source: string) {
-    const token = findGitHubToken();
-    if (token && !followRedirect.headers) {
-      followRedirect.headers = { authorization: `Bearer ${token}` };
-    }
-    const response = await fetch(source, followRedirect);
+    const response = await githubFetch(source);
     if (response.ok) {
       return response.body;
     } else {
@@ -321,6 +357,19 @@ class Command {
       }
     }
 
+    let ref = link.ref;
+
+    if (!ref) {
+      ref = "master";
+    }
+
+    if (url && url.length && isPullRequest(url)) {
+      const [newOwner, newName, newRef] = await resolveRefFromPullRequest(url);
+      link.name = newName;
+      link.owner = newOwner;
+      ref = newRef;
+    }
+
     const start = new Date().getTime();
 
     tmpobj = tmp.dirSync({
@@ -332,11 +381,6 @@ class Command {
     process.once("beforeExit", doExit);
     process.once("SIGABRT", doExit);
     process.once("SIGQUIT", doExit);
-    let ref = link.ref;
-
-    if (!ref) {
-      ref = "master";
-    }
 
     let specificFile = link.filepath;
 
