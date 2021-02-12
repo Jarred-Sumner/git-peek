@@ -5,9 +5,7 @@ import qs from "qs";
 import React, { useState } from "react";
 import swr from "swr";
 import { fetch } from "./fetch";
-import fs from "fs";
-import path from "path";
-import yaml from "js-yaml";
+import { findGitHubToken } from "./findGitHubToken";
 
 const ItemComponent = ({
   isSelected = false,
@@ -33,39 +31,6 @@ export const githubOptions = {
     Accept: "application/vnd.github.v3+json",
   },
 };
-
-function _findGitHubToken() {
-  const hubPath = path.join(process.env.HOME, ".config/hub");
-
-  if (process.env.GITHUB_TOKEN?.trim()?.length ?? 0) {
-    return process.env.GITHUB_TOKEN.trim();
-  } else if (fs.existsSync(hubPath)) {
-    const hub = yaml.load(fs.readFileSync(hubPath, "utf8"));
-    if (typeof hub !== "object") return null;
-    const githubKey = Object.keys(hub).find((k) =>
-      k.toLowerCase().includes("github.com")
-    );
-    if (githubKey) {
-      const tokenholder = hub[githubKey].find((k) => k?.oauth_token);
-      if (tokenholder) {
-        return tokenholder?.oauth_token;
-      }
-    }
-
-    return null;
-  } else {
-    return null;
-  }
-}
-
-let _githubToken;
-export function findGitHubToken() {
-  if (typeof _githubToken === "undefined") {
-    _githubToken = _findGitHubToken();
-  }
-
-  return _githubToken;
-}
 
 function applyGitHubToken() {
   if (hasAppliedGithub) return;

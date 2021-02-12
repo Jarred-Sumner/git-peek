@@ -5,14 +5,17 @@ import fs from "fs";
 import parse from "git-url-parse";
 import meow from "meow";
 import path from "path";
-import { findGitHubToken, renderInk } from "src/Search";
+import { findGitHubToken } from "src/findGitHubToken";
 import tar from "tar";
 import tmp from "tmp";
 import { fetch } from "./fetch";
 import which from "which";
+import dotenv from "dotenv";
 
-// let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
-let editorsToTry = ["code", "subl", "vim", "vi", "code-insiders"];
+const GIT_PEEK_ENV_PATH = path.join(process.env.HOME, ".git-peek");
+let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
+
+const DOTENV_EXISTS = fs.existsSync(GIT_PEEK_ENV_PATH);
 
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
@@ -162,6 +165,12 @@ class Command {
   slowTask: childProcess.ChildProcess = null;
 
   search(input: string) {
+    // TODO: remove this when https://github.com/vadimdemedes/ink/issues/415 is resolved.
+    const _disableWarning = process.emitWarning;
+    process.emitWarning = () => {};
+    const { renderInk } = require("./Search");
+    process.emitWarning = _disableWarning;
+
     return renderInk(input);
   }
 
@@ -169,8 +178,15 @@ class Command {
     const response = await githubFetch(source);
     if (response.ok) {
       return response.body;
+    } else if (response.status === 403 || response.status === 401) {
+      const error = `Failed to load git repo: HTTP ${response.status}
+${await response.text()}
+-
+If this is a private repo, consider setting $GITHUB_TOKEN. To save $GITHUB_TOKEN, store it in $HOME/.git-peek (a .env file)`;
+      console.error(error);
+      throw error;
     } else {
-      throw response.text();
+      throw await response.text();
     }
   }
   didUseFallback = false;
@@ -237,34 +253,47 @@ class Command {
   parse() {
     const cli = meow(
       `
-      USAGE
-        $ git-peek [git link or github link or search query or repository file path]
+USAGE
+  $ git-peek [git link or github link or search query or repository file path]
 
-      EXAMPLES
-        git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
-        git peek https://github.com/ylukem/pin-go
-        git peek https://github.com/jarred-sumner/atbuild
-        git peek hanford/trends
-        git peek react
-        git peek https://github.com/jarred-sumner/fastbench.dev/tree/main/
+EXAMPLES
+  git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
+  git peek https://github.com/ylukem/pin-go
+  git peek https://github.com/jarred-sumner/atbuild
+  git peek hanford/trends
+  git peek react
+  git peek https://github.com/jarred-sumner/fastbench.dev/tree/main/
 
-      OPTIONS
-        -e, --editor=editor  [default: auto] editor to open with, possible values:
-                             auto, ${editorsToTry.join(", ")}.
-                             By default, it will search $EDITOR. If not found, it
-                             will try code, then subl, then vim.
+OPTIONS
+  -e, --editor=editor  [default: ${
+    process.env.EDITOR?.length ? process.env.EDITOR : "auto"
+  }] editor to open with, possible values:
+                        auto, ${editorsToTry.join(", ")}.
+                        By default, it will search $EDITOR. If not found, it
+                        will try code, then subl, then vim.
 
-        -o, --out=           [default: system temp directory] output directory to
-                             store repository files in. If you're cloning a large
-                             repo and your tempdir is an in-memory storage (/tmp),
-                             maybe change this.
+  -o, --out=           [default: system temp directory] output directory to
+                        store repository files in. If you're cloning a large
+                        repo and your tempdir is an in-memory storage (/tmp),
+                        maybe change this.
 
-        -w, --wait           [default: false] wait to open the editor until the
-                             repository finishes downloading. always on for vi.
+  -w, --wait           [default: false] wait to open the editor until the
+                        repository finishes downloading. always on for vi.
 
-        -h, --help           show CLI help
+  -h, --help           show CLI help
 
-    `.trim() + "\n",
+ENVIRONMENT VARIABLES:
+  $EDITOR: ${process.env.EDITOR?.length ? process.env.EDITOR : "not set"}
+  $GITHUB_TOKEN: ${
+    process.env.GITHUB_TOKEN?.length
+      ? new Array(process.env.GITHUB_TOKEN.length).fill("*").join("")
+      : "not set"
+  }
+  .env: ${DOTENV_EXISTS ? "✅" : "❌"} ${GIT_PEEK_ENV_PATH}
+
+For use with private GitHub repositories, set $GITHUB_TOKEN to a personal
+access token. To persist it, store it in your shell or the .env shown above.
+`.trim(),
       {
         flags: {
           out: {
@@ -469,7 +498,7 @@ class Command {
     let editorMode = EditorMode.unknown;
 
     if (chosenEditor.includes("code")) {
-      chosenEditor += " --wait";
+      if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
       editorMode = EditorMode.vscode;
       editorSpecificCommands.push("--new-window");
 
@@ -477,7 +506,8 @@ class Command {
         editorSpecificCommands.push(`-g "${path.resolve(openPath)}":0:0`);
       }
     } else if (chosenEditor.includes("subl")) {
-      chosenEditor += " --wait";
+      if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
+
       editorMode = EditorMode.sublime;
       editorSpecificCommands.push("--new-window");
 
@@ -552,5 +582,10 @@ class Command {
 
 process.on("unhandledRejection", (reason) => console.error(reason));
 process.on("unhandledException", (reason) => console.error(reason));
+
+if (DOTENV_EXISTS) {
+  dotenv.config({ path: GIT_PEEK_ENV_PATH });
+}
+
 instance = new Command();
 instance.run();

@@ -89,33 +89,55 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
 
 ```bash
 ❯ git peek -h
+ Quickly preview remote Git repositories in your local editor
+
   USAGE
-          $ git-peek [git link or github link or search query or repository file path]
+    $ git-peek [git link or github link or search query or repository file path]
 
-        EXAMPLES
-          git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
-          git peek https://github.com/ylukem/pin-go
-          git peek https://github.com/jarred-sumner/atbuild
-          git peek hanford/trends
-          git peek react
-          git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
+  EXAMPLES
+    git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
+    git peek https://github.com/ylukem/pin-go
+    git peek https://github.com/jarred-sumner/atbuild
+    git peek hanford/trends
+    git peek react
 
-        OPTIONS
-          -e, --editor=editor  [default: auto] editor to open with, possible values:
-                               auto, code, subl, vim, vi, code-insiders. By default, it will search
-                               $EDITOR. If not found, it will try code, then subl,
-                               then vim.
+  OPTIONS
+    -e, --editor=editor  [default: auto] editor to open with, possible values:
+                          auto, code, subl, vim, vi, code-insiders.
+                          By default, it will search $EDITOR. If not found, it
+                          will try code, then subl, then vim.
 
-          -o, --out=           [default: system temp directory] output directory to
-                               store repository files in. If you're cloning a large
-                               repo and your tempdir is an in-memory storage (/tmp),
-                               maybe change this.
+    -o, --out=           [default: system temp directory] output directory to
+                          store repository files in. If youre cloning a large
+                          repo and your tempdir is an in-memory storage (/tmp),
+                          maybe change this.
 
-          -w, --wait           [default: false] wait to open the editor until the
-                               repository finishes downloading.
+    -w, --wait           [default: false] wait to open the editor until the
+                          repository finishes downloading. always on for vi.
 
-          -h, --help           show CLI help
+    -h, --help           show CLI help
+
+  ENVIRONMENT VARIABLES:
+    $EDITOR: code --wait
+    $GITHUB_TOKEN: ********
+    .env: ✅ $HOME/.git-peek
+
+  For use with private GitHub repositories, set $GITHUB_TOKEN to a personal
+  access token. To persist it, store it in your shell config or the .env shown above.
 ```
+
+### Private repositories & choosing an editor
+
+To use `git-peek` with private repositories, set a `$GITHUB_TOKEN` to a personal access token. If you don't want a global shell `$GITHUB_TOKEN`, you can set in `$HOME/.git-peek`.
+
+Its a `.env` file, so the syntax looks like this:
+
+```bash
+EDITOR="code"
+GITHUB_TOKEN="**********"
+```
+
+You can also save a custom editor this way. So you don't have to add `-e vim` everytime if `$EDITOR` is not propagating to the process.
 
 ## How does this work?
 
@@ -128,6 +150,17 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.1.30`: git-peek now starts 32% faster (delayed loading `ink` until its used for search)
+
+You can now store `$EDITOR` and `$GITHUB_TOKEN` in `$HOME/.git-peek`. Its a `.env` file, so the syntax looks like this:
+
+```bash
+EDITOR="code"
+GITHUB_TOKEN="**********"
+```
+
+Removed using the `$GITHUB_TOKEN` from `~/.hubs/config`.
 
 - `1.1.28-29`: Fix for Node 12+ [#14](https://github.com/Jarred-Sumner/git-peek/issues/14)
 - `1.1.27`: Added `--wait` flag which waits to open the editor until the entire repository is downloaded. Added `--out` flag which changes the temp directory to store files in (see #8)
