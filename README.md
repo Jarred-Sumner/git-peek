@@ -125,7 +125,7 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
-This was inspired by github1s.com.
+This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
