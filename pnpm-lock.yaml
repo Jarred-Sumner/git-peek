@@ -1,5 +1,7 @@
+dependencies:
+  which: 2.0.2
 devDependencies:
-  '@types/node': 14.14.25
+  '@types/node': 14.14.26
   '@types/tar': 4.0.4
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
   chalk: 4.1.0
@@ -72,6 +74,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-EPpXLOVqDvisVxtlbvzfyqSsFeQxltFbluZNRndIb8tr9KiBnYNLzrc1N3pyKUCww2RNrfHDViqDWWE1LCJQtQ==
+  /@types/node/14.14.26:
+    dev: true
+    resolution:
+      integrity: sha512-skWxepWOs+VArEBWd2S/VR3wUavioIIx9/HzW+UJiIjtwa6+kNXdsOeq7FfxDXf56hIcL0ieo2brwMgBJ1+lhw==
   /@types/normalize-package-data/2.4.0:
     dev: true
     resolution:
@@ -688,7 +694,6 @@ packages:
     resolution:
       integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==
   /isexe/2.0.0:
-    dev: true
     resolution:
       integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
   /js-tokens/4.0.0:
@@ -1403,7 +1408,6 @@ packages:
   /which/2.0.2:
     dependencies:
       isexe: 2.0.0
-    dev: true
     engines:
       node: '>= 8'
     hasBin: true
@@ -1489,3 +1493,4 @@ specifiers:
   tar: ^6.1.0
   tmp: ^0.2.1
   typescript: beta
+  which: ^2.0.2

@@ -9,6 +9,7 @@ import { renderInk } from "src/Search";
 import tar from "tar";
 import tmp from "tmp";
 import { fetch } from "./fetch";
+import which from "which";
 
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
@@ -355,10 +356,7 @@ class Command {
 
       for (let editor of editorsToTry) {
         try {
-          chosenEditor = childProcess
-            .execSync(`which ${editor}`)
-            .toString()
-            .trim();
+          chosenEditor = `"` + which.sync(editor) + `"`;
           chosenEditor += " --wait";
           break;
         } catch (exception) {}

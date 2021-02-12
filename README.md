@@ -93,7 +93,7 @@ OPTIONS
 
 ## How does this work?
 
-If you pass it a GitHub repository, it fetches a tarball instead of using git. From unscientific benchmarks, this is about 2x faster than cloning. While downloading the tarball, it also downloads the specific file linked to (or the `README.md`) via JSDelivr's CDN. Whichever happens first, it opens in the editor, but it will keep fetching the repo until its complete or the program exits.
+If you pass it a GitHub repository, it fetches a tarball instead of using git and decompresses it while downloading it (streaming). From unscientific benchmarks, this is about 2x faster than cloning. While downloading & decompressing the tarball, it also downloads the specific file linked to (or the `README.md`) via JSDelivr's CDN. Whichever happens first, it opens in the editor (usually JSDelivr), but it will keep fetching the repo until its complete or the program exits.
 
 If you pass it a git repository rather than a Github url, it does a [partial clone](https://github.blog/2020-12-21-get-up-to-speed-with-partial-clone-and-shallow-clone/) instead of doing a full clone.
 
