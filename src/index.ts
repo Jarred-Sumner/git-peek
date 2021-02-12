@@ -21,6 +21,13 @@ let slowTask;
 
 let instance: Command;
 
+enum EditorMode {
+  unknown = 0,
+  vscode = 1,
+  sublime = 2,
+  vim = 3,
+}
+
 function doExit() {
   if (!didRemove) {
     tmpobj?.removeCallback();
@@ -352,12 +359,15 @@ class Command {
       !_editor || _editor === "auto" ? process.env.EDITOR : _editor;
 
     if (!chosenEditor?.trim().length) {
-      let editorsToTry = ["code", "subl", "vim"];
+      let editorsToTry = ["code", "subl", "vim", "vi"];
 
       for (let editor of editorsToTry) {
         try {
-          chosenEditor = `"` + which.sync(editor) + `"`;
-          chosenEditor += " --wait";
+          chosenEditor = which.sync(editor);
+          if (chosenEditor.includes("code") || chosenEditor.includes("subl")) {
+            chosenEditor = `"` + chosenEditor + `"`;
+            chosenEditor += " --wait";
+          }
           break;
         } catch (exception) {}
       }
@@ -367,34 +377,72 @@ class Command {
 
     // console.log(path.join(tmpobj.name, specificFile));
 
+    let editorMode = EditorMode.unknown;
+
     if (chosenEditor.includes("code")) {
+      editorMode = EditorMode.vscode;
       editorSpecificCommands.push("--new-window");
 
       if (specificFile) {
         editorSpecificCommands.push(`-g "${path.resolve(openPath)}":0:0`);
       }
     } else if (chosenEditor.includes("subl")) {
+      editorMode = EditorMode.sublime;
       editorSpecificCommands.push("--new-window");
 
       if (specificFile) {
         editorSpecificCommands.push(`"${path.resolve(openPath)}":0:0`);
       }
+      // TODO: handle go to specific line for vim.
+    } else if (chosenEditor.includes("vi")) {
+      editorMode = EditorMode.vim;
     }
 
-    const cmd = `${chosenEditor} "${path.join(
-      tmpobj.name
-    )}" ${editorSpecificCommands.join(" ")}`.trim();
-
     await new Promise((resolve, reject) => {
-      this.slowTask = childProcess.exec(
-        cmd,
-        {
-          env: process.env,
-          stdio: "inherit",
-          cwd: tmpobj.name,
-        },
-        (err, res) => (err ? reject(err) : resolve(res))
-      );
+      if (editorMode === EditorMode.vim) {
+        process.stdin.setRawMode(true);
+        process.stdin.pause();
+
+        this.slowTask = childProcess.spawn(
+          chosenEditor,
+          [tmpobj.name, ...editorSpecificCommands],
+          {
+            env: process.env,
+            stdio: "inherit",
+            detached: false,
+            cwd: tmpobj.name,
+          }
+        );
+        let didResolve = false;
+        function resolver() {
+          if (!didResolve) {
+            process.stdin.setRawMode(false);
+            process.stdin.resume();
+
+            resolve();
+            didResolve = true;
+          }
+        }
+
+        this.slowTask.once("close", resolver);
+        this.slowTask.once("exit", resolver);
+        this.slowTask.once("error", resolver);
+      } else {
+        const cmd = `${chosenEditor} "${path.join(
+          tmpobj.name
+        )}" ${editorSpecificCommands.join(" ")}`.trim();
+
+        this.slowTask = childProcess.exec(
+          cmd,
+          {
+            env: process.env,
+            stdio: "inherit",
+            cwd: tmpobj.name,
+          },
+          (err, res) => (err ? reject(err) : resolve(res))
+        );
+      }
+
       this.log(
         `💻 Launched editor in ${(
           (new Date().getTime() - start) /
@@ -404,6 +452,7 @@ class Command {
     });
 
     doExit();
+    process.exit();
   }
 }
 
