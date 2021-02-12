@@ -129,6 +129,7 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
+- `1.1.28-29`: Fix for Node 12+ (https://github.com/Jarred-Sumner/git-peek/issues/14)
 - `1.1.27`: Added `--wait` flag which waits to open the editor until the entire repository is downloaded. Added `--out` flag which changes the temp directory to store files in (see #8)
 - `1.1.22-26`: Fix windows bug.
 - `1.1.21`: Add Pull Request support. Now you can use this to quickly read a pull request. For example: `git peek https://github.com/facebook/react/pull/20790`.
