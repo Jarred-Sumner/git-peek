@@ -18,6 +18,7 @@ npm install -g @jarred/git-peek
 ```
 git peek https://github.com/ylukem/pin-go
 git peek https://github.com/jarred-sumner/atbuild
+git peek https://github.com/facebook/react/pull/20790
 git peek hanford/trends
 git peek react
 git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
@@ -32,6 +33,15 @@ It's fast.
 ❯ git peek https://github.com/nodejs/node/blob/master/lib/dgram.js
 ⏳ Extracting repository to temp folder...
 💻 Launched editor in 0.20s
+```
+
+If you paste a link to a pull request on GitHub, it will open it quickly:
+
+```
+❯ git peek https://github.com/facebook/react/pull/20790
+💻 Launched editor in 0.13s
+⏳ Extracting repository to temp folder...
+💿 Finished downloading repository!
 ```
 
 Much faster than cloning.
