@@ -11,6 +11,9 @@ import tmp from "tmp";
 import { fetch } from "./fetch";
 import which from "which";
 
+// let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
+let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
+
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
 }
@@ -206,7 +209,9 @@ class Command {
 
       OPTIONS
         -e, --editor=editor  [default: auto] editor to open with, possible values:
-                             auto, code, vim, subl. By default, it will search
+                             auto, ${editorsToTry.join(
+                               ", "
+                             )}. By default, it will search
                              $EDITOR. If not found, it will try code, then subl,
                              then vim.
 
@@ -364,14 +369,11 @@ class Command {
       !_editor || _editor === "auto" ? process.env.EDITOR : _editor;
 
     if (!chosenEditor?.trim().length) {
-      let editorsToTry = ["code", "subl", "vim", "vi"];
-
       for (let editor of editorsToTry) {
         try {
           chosenEditor = which.sync(editor);
           if (chosenEditor.includes("code") || chosenEditor.includes("subl")) {
             chosenEditor = `"` + chosenEditor + `"`;
-            chosenEditor += " --wait";
           }
           break;
         } catch (exception) {}
@@ -385,6 +387,7 @@ class Command {
     let editorMode = EditorMode.unknown;
 
     if (chosenEditor.includes("code")) {
+      chosenEditor += " --wait";
       editorMode = EditorMode.vscode;
       editorSpecificCommands.push("--new-window");
 
@@ -392,6 +395,7 @@ class Command {
         editorSpecificCommands.push(`-g "${path.resolve(openPath)}":0:0`);
       }
     } else if (chosenEditor.includes("subl")) {
+      chosenEditor += " --wait";
       editorMode = EditorMode.sublime;
       editorSpecificCommands.push("--new-window");
 
