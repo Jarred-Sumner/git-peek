@@ -5,7 +5,7 @@ import fs from "fs";
 import parse from "git-url-parse";
 import meow from "meow";
 import path from "path";
-import { renderInk } from "src/Search";
+import { findGitHubToken, renderInk } from "src/Search";
 import tar from "tar";
 import tmp from "tmp";
 import { fetch } from "./fetch";
@@ -21,6 +21,9 @@ let slowTask;
 
 let instance: Command;
 
+const followRedirect = {
+  redirect: "follow",
+};
 enum EditorMode {
   unknown = 0,
   vscode = 1,
@@ -121,9 +124,11 @@ class Command {
   }
 
   async _unzip(source: string) {
-    const response = await fetch(source, {
-      redirect: "follow",
-    });
+    const token = findGitHubToken();
+    const response = await fetch(
+      token ? source + `?access_token=${token}` : source,
+      followRedirect
+    );
     if (response.ok) {
       return response.body;
     } else {

@@ -28,13 +28,13 @@ const ItemComponent = ({
 );
 
 let query = { q: "", limit: 20, per_page: 8 };
-const githubOptions = {
+export const githubOptions = {
   headers: {
     Accept: "application/vnd.github.v3+json",
   },
 };
 
-function findGitHubToken() {
+function _findGitHubToken() {
   const hubPath = path.join(process.env.HOME, ".config/hub");
 
   if (process.env.GITHUB_TOKEN?.trim()?.length ?? 0) {
@@ -58,6 +58,15 @@ function findGitHubToken() {
   }
 }
 
+let _githubToken;
+export function findGitHubToken() {
+  if (typeof _githubToken === "undefined") {
+    _githubToken = _findGitHubToken();
+  }
+
+  return _githubToken;
+}
+
 function applyGitHubToken() {
   if (hasAppliedGithub) return;
   const token = findGitHubToken();
@@ -66,7 +75,7 @@ function applyGitHubToken() {
     return false;
   }
 
-  githubOptions.headers["Authorization"] = `Bearer ${token}`;
+  query.access_token = token;
   hasAppliedGithub = true;
 }
 
