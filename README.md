@@ -151,7 +151,9 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
-- `1.1.30`: git-peek now starts 32% faster (delayed loading `ink` until its used for search)
+### 1.1.30
+
+git-peek now starts 32% faster (delayed loading `ink` until its used for search)
 
 You can now store `$EDITOR` and `$GITHUB_TOKEN` in `$HOME/.git-peek`. Its a `.env` file, so the syntax looks like this:
 
