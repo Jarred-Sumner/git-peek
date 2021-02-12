@@ -151,7 +151,9 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
-### 1.1.30
+- `1.1.31`: Fix issue where when `vim` is loaded with a specific file (rather than the repository root dir), it would log text on top of `vim`.
+
+### `1.1.30`
 
 git-peek now starts 32% faster (delayed loading `ink` until its used for search)
 

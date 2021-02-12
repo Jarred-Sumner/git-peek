@@ -109,8 +109,11 @@ process.once("SIGINT", doExit);
 
 class Command {
   log(text) {
+    if (this.editorMode === EditorMode.vim && this.slowTask) return;
     console.log(text);
   }
+
+  editorMode: EditorMode = EditorMode.unknown;
   destination: string;
   static description =
     "Quickly open a remote Git repository with your local text editor into a temporary folder.";
@@ -495,11 +498,11 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     // console.log(path.join(tmpobj.name, specificFile));
 
-    let editorMode = EditorMode.unknown;
+    this.editorMode = EditorMode.unknown;
 
     if (chosenEditor.includes("code")) {
       if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
-      editorMode = EditorMode.vscode;
+      this.editorMode = EditorMode.vscode;
       editorSpecificCommands.push("--new-window");
 
       if (specificFile) {
@@ -508,7 +511,7 @@ access token. To persist it, store it in your shell or the .env shown above.
     } else if (chosenEditor.includes("subl")) {
       if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
 
-      editorMode = EditorMode.sublime;
+      this.editorMode = EditorMode.sublime;
       editorSpecificCommands.push("--new-window");
 
       if (specificFile) {
@@ -516,20 +519,26 @@ access token. To persist it, store it in your shell or the .env shown above.
       }
       // TODO: handle go to specific line for vim.
     } else if (chosenEditor.includes("vi")) {
-      editorMode = EditorMode.vim;
+      this.editorMode = EditorMode.vim;
     }
 
-    if ((editorMode === EditorMode.vim && usingDefaultFile) || cli.flags.wait)
+    if (
+      (this.editorMode === EditorMode.vim && usingDefaultFile) ||
+      cli.flags.wait
+    )
       if (this.unzipPromise) await this.unzipPromise;
 
     await new Promise((resolve, reject) => {
-      if (editorMode === EditorMode.vim) {
+      if (this.editorMode === EditorMode.vim) {
         process.stdin.setRawMode(true);
         process.stdin.pause();
 
         this.slowTask = childProcess.spawn(
           chosenEditor,
-          [tmpobj.name, ...editorSpecificCommands],
+          [
+            usingDefaultFile ? tmpobj.name : specificFile,
+            ...editorSpecificCommands,
+          ],
           {
             env: process.env,
             stdio: "inherit",
