@@ -96,9 +96,8 @@ function doExit() {
   }
 
   if (instance?.destination?.length && fs.existsSync(instance.destination)) {
-    fs.rmSync(instance.destination, {
+    fs.rmdirSync(instance.destination, {
       recursive: true,
-      force: true,
     });
   }
 }

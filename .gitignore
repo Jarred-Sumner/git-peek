@@ -9,5 +9,6 @@ node_modules
 
 .envrc.private
 .env
-brew
+/brew
 tmp
+/brew/git-peak
