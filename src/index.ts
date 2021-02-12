@@ -247,7 +247,7 @@ class Command {
         git peek https://github.com/jarred-sumner/atbuild
         git peek hanford/trends
         git peek react
-        git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
+        git peek https://github.com/jarred-sumner/fastbench.dev/tree/main/
 
       OPTIONS
         -e, --editor=editor  [default: auto] editor to open with, possible values:

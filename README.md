@@ -21,7 +21,7 @@ git peek https://github.com/jarred-sumner/atbuild
 git peek https://github.com/facebook/react/pull/20790
 git peek hanford/trends
 git peek react
-git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
+git peek https://github.com/jarred-sumner/fastbench.dev/tree/main/
 git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
 ```
 
