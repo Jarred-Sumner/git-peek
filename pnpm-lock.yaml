@@ -1,6 +1,7 @@
 dependencies:
-  which: 2.0.2
+  js-yaml: 4.0.0
 devDependencies:
+  '@types/js-yaml': 4.0.0
   '@types/node': 14.14.26
   '@types/tar': 4.0.4
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
@@ -22,6 +23,7 @@ devDependencies:
   tar: 6.1.0
   tmp: 0.2.1
   typescript: 4.2.0-beta
+  which: 2.0.2
 lockfileVersion: 5.2
 packages:
   /@babel/code-frame/7.12.13:
@@ -46,6 +48,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-yMQ6CVgICWtyFNBqJT3zqOc+TnqqEPLo4nKJNPFwcialiylil38Ie6q1ENeFTjvaLOkVim9K5LisHgAKJWidGQ==
+  /@types/js-yaml/4.0.0:
+    dev: true
+    resolution:
+      integrity: sha512-4vlpCM5KPCL5CfGmTbpjwVKbISRYhduEJvvUWsH5EB7QInhEj94XPZ3ts/9FPiLZFqYO0xoW4ZL8z2AabTGgJA==
   /@types/lru-cache/4.1.1:
     dev: true
     resolution:
@@ -181,6 +187,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
+  /argparse/2.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
   /arr-rotate/1.0.0:
     dev: true
     engines:
@@ -694,12 +704,20 @@ packages:
     resolution:
       integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==
   /isexe/2.0.0:
+    dev: true
     resolution:
       integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
   /js-tokens/4.0.0:
     dev: true
     resolution:
       integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
+  /js-yaml/4.0.0:
+    dependencies:
+      argparse: 2.0.1
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-pqon0s+4ScYUvX30wxQi3PogGFAlUyH0awepWvwkj4jD4v+ova3RiYw8bmA6x2rDrEaj8i/oWKoRxpVNW+Re8Q==
   /json-parse-even-better-errors/2.3.1:
     dev: true
     resolution:
@@ -1408,6 +1426,7 @@ packages:
   /which/2.0.2:
     dependencies:
       isexe: 2.0.0
+    dev: true
     engines:
       node: '>= 8'
     hasBin: true
@@ -1472,6 +1491,7 @@ packages:
     resolution:
       integrity: sha512-YnOmtSbv4MTf7RGJMK0FvZ+KD8OEe/J5BNnR0GHhD8J/XcG/Qvxgszm0Un6FTHWW4uHlTgP0IztiXQnGyIR45g==
 specifiers:
+  '@types/js-yaml': ^4.0.0
   '@types/node': latest
   '@types/tar': ^4.0.4
   '@vercel/fetch': ^6.1.0
@@ -1481,6 +1501,7 @@ specifiers:
   ink: ^3.0.8
   ink-select-input: ^4.2.0
   ink-text-input: ^4.0.1
+  js-yaml: ^4.0.0
   keypress: ^0.2.1
   meow: ^9.0.0
   node-fetch: ^2.6.1

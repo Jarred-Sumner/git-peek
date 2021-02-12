@@ -8,7 +8,9 @@
   },
   "bugs": "https://github.com/Jarred-Sumner/git-peek/issues",
   "devDependencies": {
+    "@types/js-yaml": "^4.0.0",
     "@types/node": "latest",
+    "js-yaml": "^4.0.0",
     "@types/tar": "^4.0.4",
     "@vercel/fetch": "^6.1.0",
     "chalk": "^4.1.0",
@@ -52,5 +54,6 @@
     "build": "node build.js",
     "test": "echo NO TESTS",
     "version": "oclif-dev readme && git add README.md"
-  }
+  },
+  "dependencies": {}
 }

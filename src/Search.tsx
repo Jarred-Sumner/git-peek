@@ -5,6 +5,9 @@ import qs from "qs";
 import React, { useState } from "react";
 import swr from "swr";
 import { fetch } from "./fetch";
+import fs from "fs";
+import path from "path";
+import yaml from "js-yaml";
 
 const ItemComponent = ({
   isSelected = false,
@@ -30,6 +33,44 @@ const githubOptions = {
     Accept: "application/vnd.github.v3+json",
   },
 };
+
+function findGitHubToken() {
+  const hubPath = path.join(process.env.HOME, ".config/hub");
+
+  if (process.env.GITHUB_TOKEN?.trim()?.length ?? 0) {
+    return process.env.GITHUB_TOKEN.trim();
+  } else if (fs.existsSync(hubPath)) {
+    const hub = yaml.load(fs.readFileSync(hubPath, "utf8"));
+    if (typeof hub !== "object") return null;
+    const githubKey = Object.keys(hub).find((k) =>
+      k.toLowerCase().includes("github.com")
+    );
+    if (githubKey) {
+      const tokenholder = hub[githubKey].find((k) => k?.oauth_token);
+      if (tokenholder) {
+        return tokenholder?.oauth_token;
+      }
+    }
+
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function applyGitHubToken() {
+  if (hasAppliedGithub) return;
+  const token = findGitHubToken();
+  if (!token) {
+    hasAppliedGithub = true;
+    return false;
+  }
+
+  githubOptions.headers["Authorization"] = `Bearer ${token}`;
+  hasAppliedGithub = true;
+}
+
+let hasAppliedGithub = false;
 
 async function getDefaultData() {
   const resp = await fetch("https://trends.now.sh/api/repos");
@@ -159,6 +200,8 @@ export function renderInk(query: string) {
       resolve(value);
       result = null;
     }
+
+    applyGitHubToken();
 
     try {
       result = render(
