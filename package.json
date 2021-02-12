@@ -1,10 +1,10 @@
 {
   "name": "@jarred/git-peek",
-  "version": "1.1.15",
+  "version": "1.1.16",
   "author": "Jarred Sumner @Jarred-Sumner",
   "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
-    "git-peek": "./bin/git-peek"
+    "git-peek": "bin/git-peek"
   },
   "bugs": "https://github.com/Jarred-Sumner/git-peek/issues",
   "devDependencies": {
@@ -13,6 +13,7 @@
     "@types/tar": "^4.0.4",
     "@vercel/fetch": "^6.1.0",
     "chalk": "^4.1.0",
+    "dotenv-cli": "^4.0.0",
     "esbuild": "^0.8.43",
     "git-url-parse": "^11.4.4",
     "ink": "^3.0.8",
@@ -28,6 +29,7 @@
     "promise-any-polyfill": "^0.1.2",
     "qs": "^6.9.6",
     "react": "^17.0.1",
+    "release-it": "*",
     "swr": "^0.4.2",
     "tar": "^6.1.0",
     "tmp": "^0.2.1",
@@ -54,6 +56,18 @@
   "scripts": {
     "build": "node build.js",
     "test": "echo NO TESTS",
+    "release": "dotenv release-it",
     "postbuild": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek"
+  },
+  "release-it": {
+    "git": {
+      "requireCleanWorkingDir": false
+    },
+    "github": {
+      "release": true,
+      "assets": [
+        "brew/git-peek"
+      ]
+    }
   }
 }

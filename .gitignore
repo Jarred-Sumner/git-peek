@@ -6,3 +6,6 @@
 /tmp
 /yarn.lock
 node_modules
+
+.envrc.private
+.env
