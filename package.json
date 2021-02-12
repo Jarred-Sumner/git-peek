@@ -40,8 +40,7 @@
     "node": ">=10.0.0"
   },
   "files": [
-    "bin/git-peek",
-    "bin/git-peek.cmd"
+    "bin/git-peek"
   ],
   "homepage": "https://github.com/Jarred-Sumner/git-peek",
   "keywords": [
