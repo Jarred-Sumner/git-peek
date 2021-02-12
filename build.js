@@ -8,4 +8,4 @@ build({
   platform: "node",
   external: ["path", "fs", "child_process"],
   minify: true,
-}).then((a) => console.log("Built."));
+}).then((a) => console.log("Built.", a.warnings, a.outputFiles));

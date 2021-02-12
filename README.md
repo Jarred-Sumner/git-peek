@@ -113,6 +113,7 @@ This was inspired by github1s.com.
 
 ### Changelog
 
+- `1.1.22-25`: Fix windows bug.
 - `1.1.21`: Add Pull Request support. Now you can use this to quickly read a pull request. For example: `git peek https://github.com/facebook/react/pull/20790`.
 - `1.1.20`: Fix bug when using with Fedora
 - `1.1.16-1.1.19`: trying to get `release-it` to work

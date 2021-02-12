@@ -415,13 +415,20 @@ class Command {
     if (!chosenEditor?.trim().length) {
       for (let editor of editorsToTry) {
         try {
-          chosenEditor = which.sync(editor);
+          chosenEditor = await which(editor);
           if (chosenEditor.includes("code") || chosenEditor.includes("subl")) {
             chosenEditor = `"` + chosenEditor + `"`;
           }
           break;
         } catch (exception) {}
       }
+    }
+
+    if (!chosenEditor || !chosenEditor?.trim()?.length) {
+      console.warn(
+        "No editor detected, defaulting to Visual Studio Code. Set an editor with the -e flag"
+      );
+      chosenEditor = "code";
     }
 
     let editorSpecificCommands = [];
