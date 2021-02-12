@@ -10,7 +10,6 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.0",
     "@types/node": "latest",
-    "js-yaml": "^4.0.0",
     "@types/tar": "^4.0.4",
     "@vercel/fetch": "^6.1.0",
     "chalk": "^4.1.0",
@@ -19,11 +18,13 @@
     "ink": "^3.0.8",
     "ink-select-input": "^4.2.0",
     "ink-text-input": "^4.0.1",
+    "js-yaml": "^4.0.0",
     "keypress": "^0.2.1",
     "meow": "^9.0.0",
     "node-fetch": "^2.6.1",
     "normalize-git-url": "^3.0.2",
     "open-editor": "^3.0.0",
+    "pkg": "^4.4.9",
     "promise-any-polyfill": "^0.1.2",
     "qs": "^6.9.6",
     "react": "^17.0.1",
@@ -53,7 +54,6 @@
   "scripts": {
     "build": "node build.js",
     "test": "echo NO TESTS",
-    "version": "oclif-dev readme && git add README.md"
-  },
-  "dependencies": {}
+    "postbuild": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek"
+  }
 }
