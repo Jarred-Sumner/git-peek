@@ -89,16 +89,32 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
 
 ```bash
 ❯ git peek -h
-USAGE
-  $ git-peek [git link or github link or search query or repository file path]
+  USAGE
+          $ git-peek [git link or github link or search query or repository file path]
 
-OPTIONS
-  -e, --editor=editor  [default: auto] editor to open with, possible values:
-                        auto, code, vim, subl. By default, it will search
-                        $EDITOR. If not found, it will try code, then subl,
-                        then vim.
+        EXAMPLES
+          git peek https://github.com/evanw/esbuild/blob/master/lib/common.ts
+          git peek https://github.com/ylukem/pin-go
+          git peek https://github.com/jarred-sumner/atbuild
+          git peek hanford/trends
+          git peek react
+          git peek https://github.com/jarred-sumner/fastbench.dev/tree/master/src
 
-  -h, --help           show CLI help
+        OPTIONS
+          -e, --editor=editor  [default: auto] editor to open with, possible values:
+                               auto, code, subl, vim, vi, code-insiders. By default, it will search
+                               $EDITOR. If not found, it will try code, then subl,
+                               then vim.
+
+          -o, --out=           [default: system temp directory] output directory to
+                               store repository files in. If you're cloning a large
+                               repo and your tempdir is an in-memory storage (/tmp),
+                               maybe change this.
+
+          -w, --wait           [default: false] wait to open the editor until the
+                               repository finishes downloading.
+
+          -h, --help           show CLI help
 ```
 
 ## How does this work?
@@ -113,7 +129,8 @@ This was inspired by github1s.com.
 
 ### Changelog
 
-- `1.1.22-25`: Fix windows bug.
+- `1.1.27`: Added `--wait` flag which waits to open the editor until the entire repository is downloaded. Added `--out` flag which changes the temp directory to store files in (see #8)
+- `1.1.22-26`: Fix windows bug.
 - `1.1.21`: Add Pull Request support. Now you can use this to quickly read a pull request. For example: `git peek https://github.com/facebook/react/pull/20790`.
 - `1.1.20`: Fix bug when using with Fedora
 - `1.1.16-1.1.19`: trying to get `release-it` to work

@@ -144,7 +144,7 @@ class Command {
       return true;
     }
 
-    return false;
+    throw "nope";
   }
   prefetchGithub(
     repo: string,
@@ -176,35 +176,41 @@ class Command {
   }
   didUseFallback = false;
   _tar: NodeJS.WritableStream;
-  async unzip(owner, name, ref, fallback, to: string) {
-    const archive = await this.getArchive(
-      `https://api.github.com/repos/${owner}/${name}/tarball/${ref}`,
-      `https://api.github.com/repos/${owner}/${name}/tarball/${fallback}`
-    );
+  unzipPromise: Promise<any>;
+  unzip(owner, name, ref, fallback, to: string) {
+    return new Promise((resolve2, reject2) => {
+      this.unzipPromise = new Promise(async (resolve, reject) => {
+        const archive = await this.getArchive(
+          `https://api.github.com/repos/${owner}/${name}/tarball/${ref}`,
+          `https://api.github.com/repos/${owner}/${name}/tarball/${fallback}`
+        );
 
-    this.log("⏳ Extracting repository to temp folder...");
-    archive.pipe(
-      (this._tar = tar.x({
-        cwd: to,
-        strip: 1,
-        onentry(entry) {},
-        onwarn(message, data) {
-          console.warn(message);
-        },
-      }))
-    );
+        this.log("⏳ Extracting repository to temp folder...");
+        archive.pipe(
+          (this._tar = tar.x({
+            cwd: to,
+            strip: 1,
+            onentry(entry) {},
+            onwarn(message, data) {
+              console.warn(message);
+            },
+          }))
+        );
 
-    return await new Promise((resolve, reject) => {
-      archive.on("end", () => {
-        this._tar = null;
-        this.log("💿 Finished downloading repository!");
-        resolve();
-      });
-      archive.on("error", (error) => {
-        if (didRemove) return;
+        archive.on("end", () => {
+          this._tar = null;
+          this.log("💿 Finished downloading repository!");
+          resolve();
+          resolve2();
+        });
+        archive.on("error", (error) => {
+          this._tar = null;
+          if (didRemove) return;
 
-        this.log("💿 Failed to download repository!");
-        reject(error);
+          this.log("💿 Failed to download repository!");
+          reject(error);
+          reject2(error);
+        });
       });
     });
   }
@@ -245,17 +251,37 @@ class Command {
 
       OPTIONS
         -e, --editor=editor  [default: auto] editor to open with, possible values:
-                             auto, ${editorsToTry.join(
-                               ", "
-                             )}. By default, it will search
-                             $EDITOR. If not found, it will try code, then subl,
-                             then vim.
+                             auto, ${editorsToTry.join(", ")}.
+                             By default, it will search $EDITOR. If not found, it
+                             will try code, then subl, then vim.
+
+        -o, --out=           [default: system temp directory] output directory to
+                             store repository files in. If you're cloning a large
+                             repo and your tempdir is an in-memory storage (/tmp),
+                             maybe change this.
+
+        -w, --wait           [default: false] wait to open the editor until the
+                             repository finishes downloading. always on for vi.
 
         -h, --help           show CLI help
 
     `.trim() + "\n",
       {
         flags: {
+          out: {
+            type: "string",
+            default: "",
+            alias: "o",
+            description:
+              "Parent directory to store the repository in. Defaults to system temp folder.",
+          },
+          wait: {
+            type: "boolean",
+            default: false,
+            alias: "w",
+            description:
+              "Wait for the repository to completely download before opening. Defaults to false, unless its vim. Then its always true.",
+          },
           help: {
             type: "boolean",
             default: false,
@@ -306,7 +332,7 @@ class Command {
 
   async run() {
     const cli = this.parse();
-    const { help, version } = cli.flags;
+    const { help, version, out: tempBaseDir } = cli.flags;
     let url = cli.input[0]?.trim() ?? "";
     if (help) {
       cli.showHelp(0);
@@ -372,9 +398,14 @@ class Command {
 
     const start = new Date().getTime();
 
-    tmpobj = tmp.dirSync({
-      unsafeCleanup: true,
-    });
+    tmpobj = tmp.dirSync(
+      tempBaseDir?.length
+        ? {
+            unsafeCleanup: true,
+            tmpdir: path.resolve(process.cwd(), tempBaseDir),
+          }
+        : { unsafeCleanup: true }
+    );
     this.destination = tmpobj.name;
 
     didRemove = false;
@@ -383,8 +414,9 @@ class Command {
     process.once("SIGQUIT", doExit);
 
     let specificFile = link.filepath;
+    let usingDefaultFile = !specificFile;
 
-    if (!specificFile) {
+    if (usingDefaultFile) {
       specificFile = "README.md";
     }
 
@@ -457,6 +489,9 @@ class Command {
     } else if (chosenEditor.includes("vi")) {
       editorMode = EditorMode.vim;
     }
+
+    if ((editorMode === EditorMode.vim && usingDefaultFile) || cli.flags.wait)
+      if (this.unzipPromise) await this.unzipPromise;
 
     await new Promise((resolve, reject) => {
       if (editorMode === EditorMode.vim) {
