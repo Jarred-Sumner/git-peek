@@ -1,4 +1,4 @@
-#!/usr/bin/env node --no-warnings
+#!/usr/bin/env -S node --no-warnings
 
 import childProcess from "child_process";
 import fs from "fs";
