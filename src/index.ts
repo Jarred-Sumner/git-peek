@@ -12,7 +12,7 @@ import { fetch } from "./fetch";
 import which from "which";
 
 // let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
-let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
+let editorsToTry = ["code", "subl", "vim", "vi", "code-insiders"];
 
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");

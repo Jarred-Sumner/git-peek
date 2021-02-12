@@ -103,6 +103,7 @@ This was inspired by github1s.com.
 
 ### Changelog
 
+- `1.1.15`: Move `code-insiders` to end of preference list
 - `1.1.14`: Fix code-insiders and fix passing in editor manually when its `subl` or `code`.
 - `1.1.13`: Use `Authorization` header instead of `access_token` query string.
 - `1.1.12`: When available, also use github access token for fetching tarballs (instead of just search)
