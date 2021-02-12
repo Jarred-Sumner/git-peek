@@ -75,7 +75,7 @@ function applyGitHubToken() {
     return false;
   }
 
-  query.access_token = token;
+  githubOptions.headers["Authorization"] = `Bearer ${token}`;
   hasAppliedGithub = true;
 }
 

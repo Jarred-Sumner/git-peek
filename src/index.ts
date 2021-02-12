@@ -125,10 +125,10 @@ class Command {
 
   async _unzip(source: string) {
     const token = findGitHubToken();
-    const response = await fetch(
-      token ? source + `?access_token=${token}` : source,
-      followRedirect
-    );
+    if (token && !followRedirect.headers) {
+      followRedirect.headers = { authorization: `Bearer ${token}` };
+    }
+    const response = await fetch(source, followRedirect);
     if (response.ok) {
       return response.body;
     } else {

@@ -103,6 +103,7 @@ This was inspired by github1s.com.
 
 ### Changelog
 
+- `1.1.13`: Use `Authorization` header instead of `access_token` query string.
 - `1.1.12`: When available, also use github access token for fetching tarballs (instead of just search)
 - `1.1.11`: When available, use github access token for github API requests to enable private repositories to work. To enable this, either set a `GITHUB_TOKEN` environment variable or if you've installed [hub](https://github.com/github/hub), it will automatically use `oauth_token` from `$HOME/.config/hub`. In other words, if you use `hub`, this should just work by default.
 - `1.1.10`: Fix vim
