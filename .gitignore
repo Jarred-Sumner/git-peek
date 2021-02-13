@@ -12,4 +12,5 @@ node_modules
 /brew
 tmp
 /brew/git-peek
+/brew/git-peek-macOS
 /brew/git-peek.exe
