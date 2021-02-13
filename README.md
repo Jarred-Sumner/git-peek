@@ -20,8 +20,6 @@ But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-p
 - [Windows x64 – 1.1.33](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.33/git-peek.exe)
 - [macOS x64 – 1.1.33](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.33/git-peek-macOS)
 
-These binaries just bundle `./bin/git-peek` with Node.js v14 (hence 70 MB). If you're curious, look at `./package.json`.
-
 ## Usage:
 
 ```
