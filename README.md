@@ -17,8 +17,8 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
 
-- [Windows x64 – 1.1.35](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.35/git-peek.exe)
-- [macOS x64 – 1.1.35](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.35/git-peek-macOS)
+- [Windows x64 – 1.1.36](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.36/git-peek.exe)
+- [macOS x64 – 1.1.65](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.36/git-peek-macOS)
 
 ## Usage:
 
