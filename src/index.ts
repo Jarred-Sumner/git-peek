@@ -304,7 +304,12 @@ OPTIONS
   -w, --wait           [default: false] wait to open the editor until the
                         repository finishes downloading. always on for vi.
 
-  -k, --keep           [default: false] skip deleting repository on exit.
+  -no-keep             [default: false] skip deleting repository on exit.
+
+  -b, --branch         [default: "master"] select a branch/ref to use.
+                       if the repository doesn't use master/main,
+                       you'll want to set this manually. but it will
+                       try to infer from the input by default.
 
   -h, --help           show CLI help
 
@@ -328,6 +333,12 @@ access token. To persist it, store it in your shell or the .env shown above.
             alias: "o",
             description:
               "Parent directory to store the repository in. Defaults to system temp folder.",
+          },
+          branch: {
+            type: "string",
+            default: "",
+            alias: "b",
+            description: "branch/ref to use when fetching",
           },
           keep: {
             type: "boolean",
@@ -392,7 +403,7 @@ access token. To persist it, store it in your shell or the .env shown above.
 
   async run() {
     const cli = this.parse();
-    const { help, version, out: tempBaseDir } = cli.flags;
+    const { help, version, out: tempBaseDir, branch } = cli.flags;
 
     shouldKeep = cli.flags.keep;
 
@@ -448,7 +459,9 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     let ref = link.ref;
 
-    if (!ref) {
+    if (branch !== "") {
+      ref = branch;
+    } else if (!ref) {
       ref = "master";
     }
 

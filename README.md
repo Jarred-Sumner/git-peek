@@ -17,8 +17,8 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
 
-- [Windows x64 – 1.1.34](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.34/git-peek.exe)
-- [macOS x64 – 1.1.34](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.34/git-peek-macOS)
+- [Windows x64 – 1.1.35](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.35/git-peek.exe)
+- [macOS x64 – 1.1.35](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.35/git-peek-macOS)
 
 ## Usage:
 
@@ -125,6 +125,11 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
     --no-keep            [default: false] keep the repository, rather than
                          deleting it.
 
+    -b, --branch         [default: "master"] select a branch/ref to use.
+                         if the repository doesn't use master/main,
+                         you'll want to set this manually. but it will
+                         try to infer from the input by default.
+
     -h, --help           show CLI help
 
   ENVIRONMENT VARIABLES:
@@ -160,6 +165,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.1.35`: Add optional `--branch` flag so you can choose which branch to clone if its not shown in the url. See [#17](https://github.com/Jarred-Sumner/git-peek/issues/17)
 
 - `1.1.34`: Fix home directory path resolution on Windows
 
