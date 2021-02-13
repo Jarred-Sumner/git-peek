@@ -25,7 +25,7 @@ const ItemComponent = ({
   </Box>
 );
 
-let query = { q: "", limit: 20, per_page: 8 };
+let query = { q: "", limit: 20, per_page: 9 };
 export const githubOptions = {
   headers: {
     Accept: "application/vnd.github.v3+json",
@@ -46,6 +46,20 @@ function applyGitHubToken() {
 
 let hasAppliedGithub = false;
 
+const gitPeek = {
+  name: "git-peek",
+  full_name: "Jarred-Sumner/git-peek",
+  description: "git repo to local editor instantly",
+  default_branch: "main",
+  owner: {
+    login: "Jarred-Sumner",
+  },
+};
+
+function findGitPeek(item) {
+  return item.full_name === gitPeek.full_name;
+}
+
 async function getDefaultData() {
   const resp = await fetch("https://trends.now.sh/api/repos");
 
@@ -57,6 +71,12 @@ async function getDefaultData() {
 
   if (json.items.length > query.per_page) {
     json.items = json.items.slice(0, query.per_page);
+  }
+
+  if (!json.items.find(findGitPeek)) {
+    // 🤣🤣🤣
+    let index = Math.round(Math.random() * (query.per_page - 1));
+    json.items.splice(index, 1, gitPeek, json.items[index]);
   }
 
   return [resp, json];
