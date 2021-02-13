@@ -176,6 +176,8 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
+- `1.2.1`: Slightly improve reliability & performance of launching the editor (using child_process.spawn instead of using child_process.exec) and allow the AppleScript to launch multiple instances
+
 - `1.2.0`: Create a `git-peek://` URL handler, so that you can click a link to open a repository in your local editor. Register the URL handler with `git peek -r`.
 
 - `1.1.37`: Add easter egg to search results
