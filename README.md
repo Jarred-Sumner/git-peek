@@ -130,6 +130,9 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
                          you'll want to set this manually. but it will
                          try to infer from the input by default.
 
+    -d                   [default: false] Ask the GitHub API
+                          for the default_branch to clone.
+
     -h, --help           show CLI help
 
   ENVIRONMENT VARIABLES:
@@ -165,6 +168,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.1.36`: Add optional `-d` flag that automatically asks github what the default branch is before cloning instead of guessing its either `main` or `master`.
 
 - `1.1.35`: Add optional `--branch` flag so you can choose which branch to clone if its not shown in the url. See [#17](https://github.com/Jarred-Sumner/git-peek/issues/17)
 

@@ -60,6 +60,25 @@ async function resolveRefFromPullRequest(url: string) {
   return [label.split(":")[0], repo, sha];
 }
 
+async function resolveRefFromURL(owner: string, repo: string) {
+  const apiURL = `https://api.github.com/repos/${owner}/${repo}`;
+
+  const result = await githubFetch(apiURL);
+  if (!result.ok) {
+    console.error(
+      "Failed to load github url: HTTP ",
+      result.status,
+      "\n",
+      await result.text()
+    );
+    process.exit();
+  }
+
+  const json = await result.json();
+
+  return json.default_branch ?? "main";
+}
+
 let didRemove = false;
 let tmpobj;
 let slowTask;
@@ -311,6 +330,9 @@ OPTIONS
                        you'll want to set this manually. but it will
                        try to infer from the input by default.
 
+  -d                   [default: false] Ask the GitHub API
+                       for the default_branch to clone.
+
   -h, --help           show CLI help
 
 ENVIRONMENT VARIABLES:
@@ -339,6 +361,12 @@ access token. To persist it, store it in your shell or the .env shown above.
             default: "",
             alias: "b",
             description: "branch/ref to use when fetching",
+          },
+          defaultBranch: {
+            type: "boolean",
+            default: false,
+            alias: "d",
+            description: "Check default branch",
           },
           keep: {
             type: "boolean",
@@ -403,7 +431,13 @@ access token. To persist it, store it in your shell or the .env shown above.
 
   async run() {
     const cli = this.parse();
-    const { help, version, out: tempBaseDir, branch } = cli.flags;
+    const {
+      help,
+      version,
+      out: tempBaseDir,
+      branch,
+      defaultBranch,
+    } = cli.flags;
 
     shouldKeep = cli.flags.keep;
 
@@ -459,7 +493,12 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     let ref = link.ref;
 
-    if (branch !== "") {
+    if (
+      link.resource === "github.com" &&
+      (branch === "default" || defaultBranch)
+    ) {
+      ref = await resolveRefFromURL(link.owner, link.name);
+    } else if (branch !== "") {
       ref = branch;
     } else if (!ref) {
       ref = "master";
