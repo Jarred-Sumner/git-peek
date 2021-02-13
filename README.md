@@ -161,6 +161,8 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
+- `1.1.34`: Fix home directory path resolution on Windows
+
 - `1.1.33`: Add precompiled binary for windows in releases script.
 
 - `1.1.32` Add `--no-keep` flag which skips deleting repositories on exit. Fix support for unknown editors. When the editor is unknown, it asks to confirm deleting the repository.

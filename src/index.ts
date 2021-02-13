@@ -12,7 +12,12 @@ import { fetch } from "./fetch";
 import which from "which";
 import dotenv from "dotenv";
 
-const GIT_PEEK_ENV_PATH = path.join(process.env.HOME, ".git-peek");
+const HOME =
+  process.platform === "win32"
+    ? path.join(process.env.HOMEDRIVE, process.env.HOMEPATH)
+    : process.env.HOME;
+
+const GIT_PEEK_ENV_PATH = path.join(HOME, ".git-peek");
 let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
 
 let shouldKeep = false;
