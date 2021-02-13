@@ -9,11 +9,18 @@ Use it when you want to browse or search other people's code with your own edito
 
 ## Installation:
 
+Installing from npm makes updates easy:
+
 ```
 npm install -g @jarred/git-peek
 ```
 
-There are also precompiled binaries for macOS and Windows in [releases](releases).
+But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
+
+- [Windows x64 – 1.1.33](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.33/git-peek.exe)
+- [macOS x64 – 1.1.33](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.33/git-peek-macOS)
+
+These binaries just bundle `./bin/git-peek` with Node.js v14 (hence 70 MB). If you're curious, look at `./package.json`.
 
 ## Usage:
 
