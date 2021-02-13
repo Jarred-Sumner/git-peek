@@ -169,6 +169,8 @@ This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
 
+- `1.1.37`: Add easter egg to search results
+
 - `1.1.36`: Add optional `-d` flag that automatically asks github what the default branch is before cloning instead of guessing its either `main` or `master`.
 
 - `1.1.35`: Add optional `--branch` flag so you can choose which branch to clone if its not shown in the url. See [#17](https://github.com/Jarred-Sumner/git-peek/issues/17)
