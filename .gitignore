@@ -11,4 +11,5 @@ node_modules
 .env
 /brew
 tmp
-/brew/git-peak
+/brew/git-peek
+/brew/git-peek.exe
