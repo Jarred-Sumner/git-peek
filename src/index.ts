@@ -561,7 +561,9 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     if (
       link.resource === "github.com" &&
-      (branch === "default" || defaultBranch)
+      (branch === "default" ||
+        defaultBranch ||
+        (branch === "" && cli.flags.fromscript))
     ) {
       ref = await resolveRefFromURL(link.owner, link.name);
     } else if (branch !== "") {
@@ -703,11 +705,13 @@ access token. To persist it, store it in your shell or the .env shown above.
           tmpobj.name
         )}" ${editorSpecificCommands.join(" ")}`.trim();
 
-        this.slowTask = childProcess.exec(
+        this.slowTask = childProcess.spawn(
           cmd,
           {
             env: process.env,
-            stdio: "inherit",
+            shell: true,
+            stdio: cli.flags.fromscript ? "ignore" : "inherit",
+            detached: true,
             cwd: tmpobj.name,
           },
           (err, res) => (err ? reject(err) : resolve(res))

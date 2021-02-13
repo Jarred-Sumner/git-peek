@@ -64,16 +64,16 @@ export async function register(editor: string) {
   console.log(chalk.gray(`mkdir ${TEMP_DIR}`));
   fs.mkdirSync(TEMP_DIR);
 
-  const shim = `#!${await which("node")}
+  const shim = `#!/bin/bash
 
-  // AppleScript might run as a different user/environment variables.
-  // So we have to inline some environment variables!
-  process.env.PATH = "${process.env.PATH || ""}";
-  process.env.EDITOR = "${editor}";
-  process.env.HOME = "${process.env.HOME || ""}";
-  process.env.USER = "${process.env.USER || ""}";
+# AppleScript might run as a different user/environment variables.
+# So we have to inline some environment variables!
+export PATH=$PATH:${JSON.stringify(process.env.PATH) || ""}
+export EDITOR=${JSON.stringify(editor)}
+export HOME=${JSON.stringify(process.env.HOME) || ""}
+export USER=${JSON.stringify(process.env.USER) || ""}
 
-  require("${await which("git-peek")}");
+.${JSON.stringify(await which("git-peek"))} --fromscript $1 $2 $3 $4
 `;
 
   console.log(
@@ -116,8 +116,8 @@ export async function generateAppleScript(shimLocation: string, tempDir) {
   return `
 on open location this_URL
   try
-    set innerCmd to "${shimLocation} --fromscript --out=${tempDir} " & quoted form of this_URL
-    log do shell script innerCmd
+    set innerCmd to "${shimLocation} " & quoted form of this_URL & " &> /dev/null &"
+    do shell script innerCmd
   on error errMsg
     display dialog errMsg
   end try
