@@ -116,6 +116,11 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
                           By default, it will search $EDITOR. If not found, it
                           will try code, then subl, then vim.
 
+    -r, --register        [default: false] Register the git-peek:// url protocol
+                          This allows the "Open" buttons to work on
+                          github.com once you\'ve installed the extension. Only
+                          supported on macOS (Windows coming soon).
+
     -o, --out=           [default: system temp directory] output directory to
                           store repository files in. If youre cloning a large
                           repo and your tempdir is an in-memory storage (/tmp),
