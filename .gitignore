@@ -14,3 +14,7 @@ tmp
 /brew/git-peek
 /brew/git-peek-macOS
 /brew/git-peek.exe
+*/**.app
+*/**.applescript
+*.app
+*.applescript

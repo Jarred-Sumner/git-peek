@@ -21,6 +21,7 @@ devDependencies:
   qs: 6.9.6
   react: 17.0.1
   release-it: 14.3.0
+  simple-plist: 1.1.1
   swr: 0.4.2_react@17.0.1
   tar: 6.1.0
   tmp: 0.2.1
@@ -497,6 +498,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-5ekuQOvO04MDj7kYZJaMab2S8SPjGJbotVNyv7QYFCOAwrGZs/YnoDNlh1U+m5hl7H2D/+n0taaAV/tfyd3KMA==
+  /big-integer/1.6.48:
+    dev: true
+    engines:
+      node: '>=0.6'
+    resolution:
+      integrity: sha512-j51egjPa7/i+RdiRuJbPdJ2FIUYYPhvYLjzoYbcMMm62ooO6F94fETG4MTs46zPAF9Brs04OajboA/qTGuz78w==
   /bl/4.1.0:
     dependencies:
       buffer: 5.7.1
@@ -520,6 +527,20 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-eB4uT9RGzg2odpER62bBwSLvUeGC+WbRjjyyFhGsKnc8wp/m0+hQsMUvUe3H2V0D5vw0nBdO1hCJoZo5mKeuIQ==
+  /bplist-creator/0.0.8:
+    dependencies:
+      stream-buffers: 2.2.0
+    dev: true
+    resolution:
+      integrity: sha512-Za9JKzD6fjLC16oX2wsXfc+qBEhJBJB1YPInoAQpMLhDuj5aVOv1baGeIQSq1Fr3OCqzvsoQcSBSwGId/Ja2PA==
+  /bplist-parser/0.2.0:
+    dependencies:
+      big-integer: 1.6.48
+    dev: true
+    engines:
+      node: '>= 5.10.0'
+    resolution:
+      integrity: sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==
   /brace-expansion/1.1.11:
     dependencies:
       balanced-match: 1.0.0
@@ -2439,6 +2460,16 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-FK4GqHtcCY2PPPVaKViU0NyRzpo6gCS7tPKN5b7AkElqjAOCH1bsRKgohEnxThr6DWfTGByGqba2YHGR/BqbmA==
+  /plist/3.0.1:
+    dependencies:
+      base64-js: 1.5.1
+      xmlbuilder: 9.0.7
+      xmldom: 0.1.31
+    dev: true
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-GpgvHHocGRyQm74b6FWEZZVRroHKE1I0/BTjAmySaohK+cUn+hZpbqXkc3KWgW3gQYkqcQej35FohcT0FRlkRQ==
   /prelude-ls/1.1.2:
     dev: true
     engines:
@@ -2905,6 +2936,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
+  /simple-plist/1.1.1:
+    dependencies:
+      bplist-creator: 0.0.8
+      bplist-parser: 0.2.0
+      plist: 3.0.1
+    dev: true
+    resolution:
+      integrity: sha512-pKMCVKvZbZTsqYR6RKgLfBHkh2cV89GXcA/0CVPje3sOiNOnXA8+rp/ciAMZ7JRaUdLzlEM6JFfUn+fS6Nt3hg==
   /slash/3.0.0:
     dev: true
     engines:
@@ -2981,6 +3020,12 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-gL//fkxfWUsIlFL2Tl42Cl6+HFALEaB1FU76I/Fy+oZjRreP7OPMXFlGbxM7NQsI0ZpUfw76sHnv0WNYuTb7Iw==
+  /stream-buffers/2.2.0:
+    dev: true
+    engines:
+      node: '>= 0.10.0'
+    resolution:
+      integrity: sha1-kdX1Ew0c75bc+n9yaUUYh0HQnuQ=
   /stream-meter/1.0.4:
     dependencies:
       readable-stream: 2.3.7
@@ -3420,6 +3465,18 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==
+  /xmlbuilder/9.0.7:
+    dev: true
+    engines:
+      node: '>=4.0'
+    resolution:
+      integrity: sha1-Ey7mPS7FVlxVfiD0wi35rKaGsQ0=
+  /xmldom/0.1.31:
+    dev: true
+    engines:
+      node: '>=0.1'
+    resolution:
+      integrity: sha512-yS2uJflVQs6n+CyjHoaBmVSqIDevTAWrzMmjG1Gc7h1qQ7uVozNhEPJAwZXWyGQ/Gafo3fCwrcaokezLPupVyQ==
   /yallist/3.1.1:
     dev: true
     resolution:
@@ -3477,6 +3534,7 @@ specifiers:
   qs: ^6.9.6
   react: ^17.0.1
   release-it: '*'
+  simple-plist: ^1.1.1
   swr: ^0.4.2
   tar: ^6.1.0
   tmp: ^0.2.1
