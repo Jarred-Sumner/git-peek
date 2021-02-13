@@ -15,6 +15,8 @@ import dotenv from "dotenv";
 const GIT_PEEK_ENV_PATH = path.join(process.env.HOME, ".git-peek");
 let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
 
+let shouldKeep = false;
+
 const DOTENV_EXISTS = fs.existsSync(GIT_PEEK_ENV_PATH);
 
 if (typeof Promise.any !== "function") {
@@ -78,10 +80,12 @@ function githubFetch(url, options = null) {
 }
 
 function doExit() {
-  if (!didRemove) {
+  const wasDidRemove = didRemove;
+
+  if (!didRemove && !shouldKeep) {
     tmpobj?.removeCallback();
     tmpobj = null;
-    didRemove = true;
+    didRemove = false;
     console.log("🗑  Deleted temp repo");
   }
 
@@ -98,10 +102,22 @@ function doExit() {
     instance.slowTask = null;
   }
 
-  if (instance?.destination?.length && fs.existsSync(instance.destination)) {
-    fs.rmdirSync(instance.destination, {
-      recursive: true,
-    });
+  if (
+    !wasDidRemove &&
+    !shouldKeep &&
+    instance?.destination?.length &&
+    fs.existsSync(instance.destination)
+  ) {
+    if (fs.rmSync) {
+      fs.rmSync(instance.destination, {
+        recursive: true,
+        force: true,
+      });
+    } else {
+      fs.rmdirSync(instance.destination, {
+        recursive: true,
+      });
+    }
   }
 }
 
@@ -283,6 +299,8 @@ OPTIONS
   -w, --wait           [default: false] wait to open the editor until the
                         repository finishes downloading. always on for vi.
 
+  -k, --keep           [default: false] skip deleting repository on exit.
+
   -h, --help           show CLI help
 
 ENVIRONMENT VARIABLES:
@@ -305,6 +323,12 @@ access token. To persist it, store it in your shell or the .env shown above.
             alias: "o",
             description:
               "Parent directory to store the repository in. Defaults to system temp folder.",
+          },
+          keep: {
+            type: "boolean",
+            default: false,
+            alias: "k",
+            description: "Don't delete the repository on exit.",
           },
           wait: {
             type: "boolean",
@@ -364,6 +388,9 @@ access token. To persist it, store it in your shell or the .env shown above.
   async run() {
     const cli = this.parse();
     const { help, version, out: tempBaseDir } = cli.flags;
+
+    shouldKeep = cli.flags.keep;
+
     let url = cli.input[0]?.trim() ?? "";
     if (help) {
       cli.showHelp(0);
@@ -433,9 +460,10 @@ access token. To persist it, store it in your shell or the .env shown above.
       tempBaseDir?.length
         ? {
             unsafeCleanup: true,
+            keep: shouldKeep,
             tmpdir: path.resolve(process.cwd(), tempBaseDir),
           }
-        : { unsafeCleanup: true }
+        : { unsafeCleanup: true, keep: shouldKeep }
     );
     this.destination = tmpobj.name;
 
@@ -561,6 +589,13 @@ access token. To persist it, store it in your shell or the .env shown above.
         this.slowTask.once("exit", resolver);
         this.slowTask.once("error", resolver);
       } else {
+        this.log(
+          `💻 Launched editor in ${(
+            (new Date().getTime() - start) /
+            1000
+          ).toFixed(2)}s`
+        );
+
         const cmd = `${chosenEditor} "${path.join(
           tmpobj.name
         )}" ${editorSpecificCommands.join(" ")}`.trim();
@@ -575,14 +610,19 @@ access token. To persist it, store it in your shell or the .env shown above.
           (err, res) => (err ? reject(err) : resolve(res))
         );
       }
-
-      this.log(
-        `💻 Launched editor in ${(
-          (new Date().getTime() - start) /
-          1000
-        ).toFixed(2)}s`
-      );
     });
+
+    if (shouldKeep) {
+      didRemove = true;
+    } else if (this.editorMode === EditorMode.unknown) {
+      // TODO: remove this when https://github.com/vadimdemedes/ink/issues/415 is resolved.
+      const _disableWarning = process.emitWarning;
+      process.emitWarning = () => {};
+      const { renderConfirm } = require("src/confirmPrompt");
+      process.emitWarning = _disableWarning;
+      const shouldRemove = await renderConfirm();
+      shouldKeep = didRemove = !shouldRemove;
+    }
 
     doExit();
     process.exit();

@@ -115,6 +115,9 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
     -w, --wait           [default: false] wait to open the editor until the
                           repository finishes downloading. always on for vi.
 
+    --no-keep            [default: false] keep the repository, rather than
+                         deleting it.
+
     -h, --help           show CLI help
 
   ENVIRONMENT VARIABLES:
@@ -150,6 +153,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.1.32` Add `--no-keep` flag which skips deleting repositories on exit. Fix support for unknown editors. When the editor is unknown, it asks to confirm deleting the repository.
 
 - `1.1.31`: Fix issue where when `vim` is loaded with a specific file (rather than the repository root dir), it would log text on top of `vim`.
 
