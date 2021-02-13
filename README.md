@@ -13,6 +13,8 @@ Use it when you want to browse or search other people's code with your own edito
 npm install -g @jarred/git-peek
 ```
 
+There are also precompiled binaries for macOS and Windows in [releases](releases).
+
 ## Usage:
 
 ```

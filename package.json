@@ -1,6 +1,6 @@
 {
   "name": "@jarred/git-peek",
-  "version": "1.1.32",
+  "version": "1.1.33",
   "author": "Jarred Sumner @Jarred-Sumner",
   "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
@@ -57,7 +57,10 @@
     "build": "node build.js",
     "test": "echo NO TESTS",
     "release": "dotenv release-it",
-    "prerelease": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek"
+    "pkg-mac": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek-macOS",
+    "pkg-windows": "pkg --public --options='no-warnings' -t 'node14-windows-x64' ./bin/git-peek -o ./brew/git-peek.exe",
+    "pkg-all": "pnpm pkg-mac; pnpm pkg-windows",
+    "prerelease": "pnpm pkg-all"
   },
   "release-it": {
     "git": {
@@ -66,7 +69,8 @@
     "github": {
       "release": true,
       "assets": [
-        "./brew/git-peek"
+        "./brew/git-peek-macOS",
+        "./brew/git-peek.exe"
       ]
     }
   }
