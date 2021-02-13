@@ -17,8 +17,10 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
 
-- [Windows x64 – 1.1.37](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek.exe)
-- [macOS x64 – 1.1.37](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek-macOS)
+- [Windows x64 – 1.2.0](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek.exe)
+- [macOS x64 – 1.2.0](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek-macOS)
+
+**NEW**: [Try the chrome extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Only works on macOS for now and doesn't work on vim (terminal editor without a temrinal? how)
 
 ## Usage:
 
@@ -168,6 +170,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.2.0`: Create a `git-peek://` URL handler, so that you can click a link to open a repository in your local editor. Register the URL handler with `git peek -r`.
 
 - `1.1.37`: Add easter egg to search results
 
