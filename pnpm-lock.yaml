@@ -1,11 +1,13 @@
 devDependencies:
   '@types/js-yaml': 4.0.0
   '@types/node': 14.14.27
+  '@types/rimraf': 3.0.0
   '@types/tar': 4.0.4
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
   chalk: 4.1.0
   dotenv: 8.2.0
   dotenv-cli: 4.0.0
+  edge-js: 15.5.2
   esbuild: 0.8.43
   git-url-parse: 11.4.4
   ink: 3.0.8_react@17.0.1
@@ -21,6 +23,7 @@ devDependencies:
   qs: 6.9.6
   react: 17.0.1
   release-it: 14.3.0
+  rimraf: 3.0.2
   simple-plist: 1.1.1
   swr: 0.4.2_react@17.0.1
   tar: 6.1.0
@@ -230,6 +233,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ykFq2zmBGOCbpIXtoVbz4SKY5QriWPh3AjyU4G74RYbtt5yOc5OfaY75ftjg7mikMOla1CTGpX3lLbuJh8DTrQ==
+  /@types/glob/7.1.3:
+    dependencies:
+      '@types/minimatch': 3.0.3
+      '@types/node': 14.14.27
+    dev: true
+    resolution:
+      integrity: sha512-SEYeGAIQIQX8NN6LDKprLjbrd5dARM5EXsd8GI/A5l0apYI1fGMWgPHSe4ZKL4eozlAyI+doUE9XbYS4xCkQ1w==
   /@types/http-cache-semantics/4.0.0:
     dev: true
     resolution:
@@ -248,6 +258,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-8mNEUG6diOrI6pMqOHrHPDBB1JsrpedeMK9AWGzVCQ7StRRribiT9BRvUmF8aUws9iBbVlgVekOT5Sgzc1MTKw==
+  /@types/minimatch/3.0.3:
+    dev: true
+    resolution:
+      integrity: sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
   /@types/minimist/1.2.1:
     dev: true
     resolution:
@@ -294,6 +308,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==
+  /@types/rimraf/3.0.0:
+    dependencies:
+      '@types/glob': 7.1.3
+      '@types/node': 14.14.27
+    dev: true
+    resolution:
+      integrity: sha512-7WhJ0MdpFgYQPXlF4Dx+DhgvlPCfz/x5mHaeDQAKhcenvQP1KCpLQ18JklAqeGMYSAT2PxLpzd0g2/HE7fj7hQ==
   /@types/tar/4.0.4:
     dependencies:
       '@types/minipass': 2.2.0
@@ -973,6 +994,23 @@ packages:
     dev: true
     resolution:
       integrity: sha1-OoOpBOVDUyh4dMVkt1SThoSamMk=
+  /edge-cs/1.2.1:
+    dev: true
+    engines:
+      node: '>= 0.8'
+    requiresBuild: true
+    resolution:
+      integrity: sha1-vRqezblO8O1AyJRYIEZ0nlcEXlo=
+  /edge-js/15.5.2:
+    dependencies:
+      edge-cs: 1.2.1
+      nan: 2.14.2
+    dev: true
+    engines:
+      node: '>= 6'
+    requiresBuild: true
+    resolution:
+      integrity: sha512-9mR9oDcOl/VCyHOL3KlvJYEtKJ/4btqGBWnqN6hqQEalBkk1u1PKjCS2mmwgwfxmsleXy8rrccu9Gnyn3LO9LA==
   /emoji-regex/7.0.3:
     dev: true
     resolution:
@@ -2139,6 +2177,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
+  /nan/2.14.2:
+    dev: true
+    resolution:
+      integrity: sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
   /node-fetch/2.6.1:
     dev: true
     engines:
@@ -3514,11 +3556,13 @@ packages:
 specifiers:
   '@types/js-yaml': ^4.0.0
   '@types/node': latest
+  '@types/rimraf': ^3.0.0
   '@types/tar': ^4.0.4
   '@vercel/fetch': ^6.1.0
   chalk: ^4.1.0
   dotenv: ^8.2.0
   dotenv-cli: ^4.0.0
+  edge-js: ^15.5.2
   esbuild: ^0.8.43
   git-url-parse: ^11.4.4
   ink: ^3.0.8
@@ -3534,6 +3578,7 @@ specifiers:
   qs: ^6.9.6
   react: ^17.0.1
   release-it: '*'
+  rimraf: ^3.0.2
   simple-plist: ^1.1.1
   swr: ^0.4.2
   tar: ^6.1.0

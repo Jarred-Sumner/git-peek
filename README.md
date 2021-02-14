@@ -17,8 +17,8 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
 
-- [Windows x64 – 1.2.0](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek.exe)
-- [macOS x64 – 1.2.0](https://github.com/Jarred-Sumner/git-peek/releases/download/1.1.37/git-peek-macOS)
+- [Windows x64 – 1.2.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.2.2/git-peek.exe)
+- [macOS x64 – 1.2.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.2.2/git-peek-macOS)
 
 **NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Only works on macOS for now and doesn't work on vim (terminal editor without a temrinal? how)
 
@@ -175,6 +175,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 This was inspired by [github1s.com](https://github.com/conwnet/github1s).
 
 ### Changelog
+
+- `1.2.2`: Prevent process from sticking around longer than necessary if its still extracting the repository when its supposed to close. Add `fs.rmSync` polyfill
 
 - `1.2.1`: Slightly improve reliability & performance of launching the editor (using child_process.spawn instead of using child_process.exec) and allow the AppleScript to launch multiple instances
 

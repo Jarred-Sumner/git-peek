@@ -11,6 +11,7 @@ import tmp from "tmp";
 import { fetch } from "./fetch";
 import which from "which";
 import dotenv from "dotenv";
+import type { Writable } from "stream";
 
 const HOME =
   process.platform === "win32"
@@ -21,6 +22,19 @@ const GIT_PEEK_ENV_PATH = path.join(HOME, ".git-peek");
 let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
 
 let shouldKeep = false;
+
+let logFunction = console.log;
+let exceptionLogger = console.error;
+
+if (!fs.rmSync) {
+  const rimraf = require("rimraf");
+  fs.rmSync = (path: string, options: fs.RmOptions) => {
+    // Just in-case!
+    if (path === "/") return;
+    if (path === "/Applications") return;
+    return rimraf.sync(path);
+  };
+}
 
 async function fetchEditor(_editor, silent) {
   let chosenEditor =
@@ -137,7 +151,7 @@ function doExit() {
     tmpobj?.removeCallback();
     tmpobj = null;
     didRemove = false;
-    console.log("🗑  Deleted temp repo");
+    instance?.log("🗑  Deleted temp repo");
   }
 
   if (instance?.archive?.destroy) {
@@ -145,11 +159,17 @@ function doExit() {
   }
 
   if (instance?._tar) {
+    instance?._tar.abort("none");
     instance?._tar.removeAllListeners();
   }
 
   if (instance?.slowTask) {
+    if (!instance.slowTask.killed) {
+      instance.slowTask.kill("SIGKILL");
+    }
+
     instance.slowTask.removeAllListeners();
+
     instance.slowTask = null;
   }
 
@@ -159,16 +179,10 @@ function doExit() {
     instance?.destination?.length &&
     fs.existsSync(instance.destination)
   ) {
-    if (fs.rmSync) {
-      fs.rmSync(instance.destination, {
-        recursive: true,
-        force: true,
-      });
-    } else {
-      fs.rmdirSync(instance.destination, {
-        recursive: true,
-      });
-    }
+    fs.rmSync(instance.destination, {
+      recursive: true,
+      force: true,
+    });
   }
 }
 
@@ -260,7 +274,7 @@ If this is a private repo, consider setting $GITHUB_TOKEN. To save $GITHUB_TOKEN
     }
   }
   didUseFallback = false;
-  _tar: NodeJS.WritableStream;
+  _tar: Writable;
   unzipPromise: Promise<any>;
   unzip(owner, name, ref, fallback, to: string) {
     return new Promise((resolve2, reject2) => {
@@ -516,10 +530,6 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     if (url.includes("git-peek://")) {
       url = url.replace("git-peek://", "").trim();
-
-      if (cli.flags.fromscript) {
-        process.exit = () => {};
-      }
     }
 
     let link;
@@ -552,7 +562,7 @@ access token. To persist it, store it in your shell or the .env shown above.
           url = await this.search(url);
           isMalformed = !url || !url.includes("/") || url.includes(" ");
         } catch (exception) {
-          console.log(exception);
+          this.log(exception);
         }
       }
     }
@@ -705,17 +715,27 @@ access token. To persist it, store it in your shell or the .env shown above.
           tmpobj.name
         )}" ${editorSpecificCommands.join(" ")}`.trim();
 
-        this.slowTask = childProcess.spawn(
-          cmd,
-          {
-            env: process.env,
-            shell: true,
-            stdio: cli.flags.fromscript ? "ignore" : "inherit",
-            detached: true,
-            cwd: tmpobj.name,
-          },
-          (err, res) => (err ? reject(err) : resolve(res))
-        );
+        this.slowTask = childProcess.spawn(cmd, {
+          env: process.env,
+          shell: true,
+          stdio: cli.flags.fromscript ? "ignore" : "inherit",
+          detached: true,
+          cwd: tmpobj.name,
+        });
+        let didResolve = false;
+
+        function resolver() {
+          if (!didResolve) {
+            process.stdin.setRawMode(false);
+            process.stdin.resume();
+
+            resolve();
+            didResolve = true;
+          }
+        }
+
+        this.slowTask.once("exit", resolver);
+        this.slowTask.once("error", reject);
       }
     });
 
@@ -733,11 +753,15 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     doExit();
     process.exit();
+    setTimeout(() => {
+      process.emitWarning = () => {};
+      process.kill(process.pid, "SIGTERM");
+    }, 1000);
   }
 }
 
-process.on("unhandledRejection", (reason) => console.error(reason));
-process.on("unhandledException", (reason) => console.error(reason));
+process.on("unhandledRejection", exceptionLogger);
+process.on("unhandledException", exceptionLogger);
 
 if (DOTENV_EXISTS) {
   dotenv.config({ path: GIT_PEEK_ENV_PATH });
