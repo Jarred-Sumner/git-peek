@@ -26,6 +26,8 @@ let shouldKeep = false;
 let logFunction = console.log;
 let exceptionLogger = console.error;
 
+// fs.rmSync was added in Node v14.14
+// See docs: https://nodejs.org/api/fs.html#fs_fs_rmsync_path_options
 if (!fs.rmSync) {
   const rimraf = require("rimraf");
   fs.rmSync = (path: string, options: fs.RmOptions) => {

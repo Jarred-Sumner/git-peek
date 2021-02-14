@@ -17,7 +17,7 @@ export async function register(editor: string) {
   try {
     await which("duti");
   } catch (exception) {
-    const installCommand = `brew install duti`;
+    const installCommand = `HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install duti`;
     console.log(`duti not installed. Installing with homebrew.`);
     execSync(installCommand);
   }
