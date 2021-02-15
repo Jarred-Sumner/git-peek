@@ -186,6 +186,11 @@ Visual Studio Code doesn't have this problem because passing a directory to `--w
 
 ### Changelog
 
+##### `1.3.4`
+
+- Improve reliability of deleting files on Windows. On POSIX systems, you can delete files when they're in use. Windows will refuse, even if "in use" means, the process' current working directory is set to it but there aren't necessarily files open for it. The fix was to make it so that the current working directory on Windows is the parent directory, and also to tell `rimraf` to first delete all the files inside the folder and then delete the folder itself. This probably isnt' ideal for performance, maybe there's a more "native" system call for this.
+- Fix logs that were supposed to only show up with `VERBOSE` env var set
+
 ##### `1.3.3`
 
 - Add support for GitHub Enterprise! (Thanks @Thau)
