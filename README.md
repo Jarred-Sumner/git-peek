@@ -195,6 +195,8 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 - Add sourcemap file because why not
 - Made the "Deleted repository" log double check that the repository is no longer there before logging it.
 
+---
+
 - `1.2.2`: Prevent process from sticking around longer than necessary if its still extracting the repository when its supposed to close. Add `fs.rmSync` polyfill
 
 - `1.2.1`: Slightly improve reliability & performance of launching the editor (using child_process.spawn instead of using child_process.exec) and allow the AppleScript to launch multiple instances
