@@ -452,8 +452,16 @@ ENVIRONMENT VARIABLES:
       ? new Array(process.env.GITHUB_TOKEN.length).fill("*").join("")
       : "not set"
   }
-  $GITHUB_BASE_DOMAIN: ${process.env.GITHUB_BASE_DOMAIN?.length ? process.env.GITHUB_BASE_DOMAIN : "not set"}
-  $GITHUB_API_DOMAIN: ${process.env.GITHUB_API_DOMAIN?.length ? process.env.GITHUB_API_DOMAIN : "not set"}
+  $GITHUB_BASE_DOMAIN: ${
+    process.env.GITHUB_BASE_DOMAIN?.length
+      ? process.env.GITHUB_BASE_DOMAIN
+      : "not set"
+  }
+  $GITHUB_API_DOMAIN: ${
+    process.env.GITHUB_API_DOMAIN?.length
+      ? process.env.GITHUB_API_DOMAIN
+      : "not set"
+  }
   .env: ${DOTENV_EXISTS ? "✅" : "❌"} ${GIT_PEEK_ENV_PATH}
 
 For use with private GitHub repositories, set $GITHUB_TOKEN to a personal
@@ -809,8 +817,8 @@ to the appropriate URLs.
         let didResolve = false;
         function resolver() {
           if (!didResolve) {
-            process.stdin.setRawMode(false);
-            process.stdin.resume();
+            if (process?.stdin?.setRawMode) process.stdin.setRawMode(false);
+            if (process?.stdin?.resume) process.stdin.resume();
 
             resolve();
             didResolve = true;
@@ -844,12 +852,25 @@ to the appropriate URLs.
             detached: false,
             cwd: tmpobj.name,
           });
+        } else if (cli.flags.fromscript && process.platform === "darwin") {
+          this.slowTask = childProcess.spawn(cmd, {
+            env: process.env,
+            shell: true,
+            windowsHide: true,
+            stdio: "pipe",
+            // This line is important! If detached is true, nothing ever happens.
+            detached: true,
+            cwd: tmpobj.name,
+          });
         } else {
           this.slowTask = childProcess.spawn(cmd, {
             env: process.env,
             shell: true,
             windowsHide: true,
-            stdio: cli.flags.fromscript ? "ignore" : "inherit",
+            stdio:
+              exitBehavior.waitFor !== WaitFor.childProcessExit
+                ? "ignore"
+                : "inherit",
             detached: exitBehavior.waitFor === WaitFor.childProcessExit,
             cwd: tmpobj.name,
           });
@@ -874,8 +895,8 @@ to the appropriate URLs.
         } else {
           function resolver() {
             if (!didResolve) {
-              process.stdin.setRawMode(false);
-              process.stdin.resume();
+              if (process?.stdin?.setRawMode) process.stdin.setRawMode(false);
+              if (process?.stdin?.resume) process.stdin.resume();
 
               resolve();
             }
@@ -920,7 +941,7 @@ if (DOTENV_EXISTS) {
   dotenv.config({ path: GIT_PEEK_ENV_PATH });
 }
 
-const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com"
-const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com"
+const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com";
+const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com";
 instance = new Command();
 instance.run();

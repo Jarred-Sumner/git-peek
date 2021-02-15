@@ -74,7 +74,7 @@ export EDITOR=${JSON.stringify(editor)}
 export HOME=${JSON.stringify(process.env.HOME) || ""}
 export USER=${JSON.stringify(process.env.USER) || ""}
 
-.${JSON.stringify(await which("git-peek"))} --fromscript $1 $2 $3 $4
+.${JSON.stringify(await which("git-peek"))} --fromscript $1 $2 $3 $4 & disown
 `;
 
   console.log(
@@ -118,7 +118,7 @@ export async function generateAppleScript(shimLocation: string, tempDir) {
 
 on open location this_URL
   try
-    set innerCmd to "${shimLocation} " & quoted form of this_URL & " &> /dev/null &"
+    set innerCmd to "${shimLocation} " & quoted form of this_URL & " &> /usr/local/var/log/git-peek &"
     do shell script innerCmd
   on error errMsg
     display dialog errMsg
