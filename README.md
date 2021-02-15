@@ -172,6 +172,18 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
+### Known Bugs
+
+#### Sublime Text
+
+`subl --wait` does not support folders, so git-peek is unable to detect when Sublime Text closes. On the CLI, this isn't a problem – it just shows a "Delete Repository Y/n" confirm message, same as other editors.
+
+![image](https://user-images.githubusercontent.com/709451/107998350-d3431380-6f99-11eb-9088-cda304e73e06.png)
+
+On the browser extension, I'm not really sure yet what to do about this.
+
+Visual Studio Code doesn't have this problem because passing a directory to `--wait` correctly waits until the window is closed.
+
 ### Changelog
 
 #### `1.3.0 - 1.3.2`
