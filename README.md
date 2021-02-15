@@ -189,7 +189,7 @@ Visual Studio Code doesn't have this problem because passing a directory to `--w
 ##### `1.3.3`
 
 - Add support for GitHub Enterprise! (Thanks @Thau)
-- Fix detecting when Visual Studio Code was closed when opened via `git-peek://`
+- Fix detecting when you closed Visual Studio Code after opening it from `git-peek://` (this already worked in the CLI). `git-peek` should now automatically delete the repository when using the browser extension (when your editor is Visual Studio Code)
 
 #### `1.3.0 - 1.3.2`
 
