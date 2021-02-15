@@ -188,7 +188,7 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 
 #### Misc
 
-- Temp folder names now start with the repository@branchOrRef name e.g. `esbuild@main`, so its clearer what you're looking at in your editor. Its still a long string, but the beginning at least makes more sense now.
+- Temp folder names now start with the `repository@branchOrRef` name e.g. `esbuild@main`, so its clearer what you're looking at in your editor. Its still a long string, but the beginning at least makes more sense now.
 - Temp folder names now end in `peekautodelete`. This will later be used for a `git-peek purge` command that will automatically delete any folders it finds in the temp directory containing `"peekautodelete"` incase anything was missed.
 - Fix bug where sometimes empty text would appear in your editor when it guessed the default filename wrong. Please open an issue if you see this happen again.
 - Will now confirm closing for Sublime Text instead of failing to detect when it closed and then hanging. Sublime Text's `--wait` CLI argument does not support folders, so it's pretty tough to detect when the user closes Sublime Text without some kind of process monitoring.
