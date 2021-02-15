@@ -172,18 +172,6 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
-### Known Bugs
-
-#### Sublime Text
-
-`subl --wait` does not support folders, so git-peek is unable to detect when Sublime Text closes. On the CLI, this isn't a problem – it just shows a "Delete Repository Y/n" confirm message, same as other editors.
-
-![image](https://user-images.githubusercontent.com/709451/107998350-d3431380-6f99-11eb-9088-cda304e73e06.png)
-
-On the browser extension, I'm not really sure yet what to do about this.
-
-Visual Studio Code doesn't have this problem because passing a directory to `--wait` correctly waits until the window is closed.
-
 ### Changelog
 
 ##### `1.3.4`
@@ -266,5 +254,17 @@ Removed using the `$GITHUB_TOKEN` from `~/.hubs/config`.
 - `1.1.11`: When available, use github access token for github API requests to enable private repositories to work. To enable this, either set a `GITHUB_TOKEN` environment variable or if you've installed [hub](https://github.com/github/hub), it will automatically use `oauth_token` from `$HOME/.config/hub`. In other words, if you use `hub`, this should just work by default.
 - `1.1.10`: Fix vim
 - `1.1.9`: Fix Windows
+
+### Known Bugs
+
+#### Sublime Text
+
+`subl --wait` does not support folders, so git-peek is unable to detect when Sublime Text closes. On the CLI, this isn't a problem – it just shows a "Delete Repository Y/n" confirm message, same as other editors.
+
+![image](https://user-images.githubusercontent.com/709451/107998350-d3431380-6f99-11eb-9088-cda304e73e06.png)
+
+On the browser extension, I'm not really sure yet what to do about this.
+
+Visual Studio Code doesn't have this problem because passing a directory to `--wait` correctly waits until the window is closed.
 
 Originally inspired by [github1s.com](https://github.com/conwnet/github1s).
