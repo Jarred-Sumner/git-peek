@@ -30,6 +30,7 @@ const HOME =
     : process.env.HOME;
 
 const GIT_PEEK_ENV_PATH = path.join(HOME, ".git-peek");
+
 let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
 
 let shouldKeep = false;
@@ -98,7 +99,7 @@ const exitBehavior = {
 
 // This will break if the github repo is called pull or if the organization is called pull
 function isPullRequest(url: string) {
-  if (!url.includes("github.com") || !url.includes("/pull/")) {
+  if (!url.includes(GITHUB_BASE_DOMAIN) || !url.includes("/pull/")) {
     return false;
   }
 
@@ -106,10 +107,10 @@ function isPullRequest(url: string) {
 }
 
 async function resolveRefFromPullRequest(url: string) {
-  let _url = url.replace("https://github.com", "");
+  let _url = url.replace(`https://${GITHUB_BASE_DOMAIN}`, "");
   const [__, owner, repo, _, pullRequestID] = _url.split("/");
 
-  const apiURL = `https://api.github.com/repos/${owner}/${repo}/pulls/${pullRequestID}`;
+  const apiURL = `https://${GITHUB_API_DOMAIN}/repos/${owner}/${repo}/pulls/${pullRequestID}`;
 
   const result = await githubFetch(apiURL);
   if (!result.ok) {
@@ -129,7 +130,7 @@ async function resolveRefFromPullRequest(url: string) {
 }
 
 async function resolveRefFromURL(owner: string, repo: string) {
-  const apiURL = `https://api.github.com/repos/${owner}/${repo}`;
+  const apiURL = `https://${GITHUB_API_DOMAIN}/repos/${owner}/${repo}`;
 
   const result = await githubFetch(apiURL);
   if (!result.ok) {
@@ -344,8 +345,8 @@ If this is a private repo, consider setting $GITHUB_TOKEN. To save $GITHUB_TOKEN
     return new Promise((resolve2, reject2) => {
       this.unzipPromise = new Promise(async (resolve, reject) => {
         const archive = await this.getArchive(
-          `https://api.github.com/repos/${owner}/${name}/tarball/${ref}`,
-          `https://api.github.com/repos/${owner}/${name}/tarball/${fallback}`
+          `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${ref}`,
+          `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${fallback}`
         );
 
         this.log("⏳ Extracting repository to temp folder...");
@@ -451,10 +452,15 @@ ENVIRONMENT VARIABLES:
       ? new Array(process.env.GITHUB_TOKEN.length).fill("*").join("")
       : "not set"
   }
+  $GITHUB_BASE_DOMAIN: ${process.env.GITHUB_BASE_DOMAIN?.length ? process.env.GITHUB_BASE_DOMAIN : "not set"}
+  $GITHUB_API_DOMAIN: ${process.env.GITHUB_API_DOMAIN?.length ? process.env.GITHUB_API_DOMAIN : "not set"}
   .env: ${DOTENV_EXISTS ? "✅" : "❌"} ${GIT_PEEK_ENV_PATH}
 
 For use with private GitHub repositories, set $GITHUB_TOKEN to a personal
 access token. To persist it, store it in your shell or the .env shown above.
+
+For use with GitHub Enterprise, set $GITHUB_BASE_DOMAIN and $GITHUB_API_DOMAIN
+to the appropriate URLs.
 `.trim(),
       {
         flags: {
@@ -610,7 +616,7 @@ access token. To persist it, store it in your shell or the .env shown above.
       const [owner, repo] = url.split("/");
 
       if (repo.trim().length) {
-        url = `https://github.com/${owner}/${repo}`;
+        url = `https://${GITHUB_BASE_DOMAIN}/${owner}/${repo}`;
       } else {
         isMalformed = true;
       }
@@ -641,7 +647,7 @@ access token. To persist it, store it in your shell or the .env shown above.
     let ref = link.ref;
 
     if (
-      link.resource === "github.com" &&
+      link.resource === GITHUB_BASE_DOMAIN &&
       (branch === "default" ||
         defaultBranch ||
         (branch === "" && cli.flags.fromscript))
@@ -697,7 +703,7 @@ access token. To persist it, store it in your shell or the .env shown above.
     let openPath = path.join(tmpobj.name, specificFile);
 
     // From a simple benchmark, unzip is 2x faster than git clone.
-    if (link.resource === "github.com") {
+    if (link.resource === GITHUB_BASE_DOMAIN) {
       let fallback = ref === "main" ? "master" : "main";
 
       await Promise.any([
@@ -914,5 +920,7 @@ if (DOTENV_EXISTS) {
   dotenv.config({ path: GIT_PEEK_ENV_PATH });
 }
 
+const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com"
+const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com"
 instance = new Command();
 instance.run();
