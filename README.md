@@ -186,6 +186,11 @@ Visual Studio Code doesn't have this problem because passing a directory to `--w
 
 ### Changelog
 
+##### `1.3.3`
+
+- Add support for GitHub Enterprise! (Thanks @Thau)
+- Fix detecting when Visual Studio Code was closed when opened via `git-peek://`
+
 #### `1.3.0 - 1.3.2`
 
 ##### Windows
