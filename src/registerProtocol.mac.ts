@@ -45,6 +45,7 @@ export async function register(editor: string) {
       CFBundleURLSchemes: ["http", "https", PROTOCOL],
     },
   ];
+  info["LSBackgroundOnly"] = true;
   plist.writeFileSync(infoPlist, info);
   console.log("Updated Info.plist");
   console.log("Moving application to /Applications/git-peek.app");
@@ -114,6 +115,7 @@ export USER=${JSON.stringify(process.env.USER) || ""}
 
 export async function generateAppleScript(shimLocation: string, tempDir) {
   return `
+
 on open location this_URL
   try
     set innerCmd to "${shimLocation} " & quoted form of this_URL & " &> /dev/null &"

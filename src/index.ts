@@ -12,6 +12,17 @@ import { fetch } from "./fetch";
 import which from "which";
 import dotenv from "dotenv";
 import type { Writable } from "stream";
+import zlib from "zlib";
+import rimraf from "rimraf";
+
+if (typeof global.AbortController === "undefined") {
+  global.AbortController = require("abort-controller").AbortController;
+  global.AbortSignal = require("abort-controller").AbortSignal;
+}
+
+const AbortController = global.AbortController;
+
+let exiting = false;
 
 const HOME =
   process.platform === "win32"
@@ -24,7 +35,10 @@ let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
 let shouldKeep = false;
 
 let logFunction = console.log;
-let exceptionLogger = console.error;
+let exceptionLogger = (...err) => {
+  if (exiting) return;
+  console.error(...err);
+};
 
 // fs.rmSync was added in Node v14.14
 // See docs: https://nodejs.org/api/fs.html#fs_fs_rmsync_path_options
@@ -70,6 +84,17 @@ const DOTENV_EXISTS = fs.existsSync(GIT_PEEK_ENV_PATH);
 if (typeof Promise.any !== "function") {
   require("promise-any-polyfill");
 }
+
+enum WaitFor {
+  childProcessExit,
+  downloadComplete,
+  confirm,
+}
+
+const exitBehavior = {
+  confirm: false,
+  waitFor: WaitFor.downloadComplete,
+};
 
 // This will break if the github repo is called pull or if the organization is called pull
 function isPullRequest(url: string) {
@@ -123,6 +148,7 @@ async function resolveRefFromURL(owner: string, repo: string) {
 }
 
 let didRemove = false;
+
 let tmpobj;
 let slowTask;
 
@@ -138,54 +164,85 @@ enum EditorMode {
   vim = 3,
 }
 
-function githubFetch(url, options = null) {
+let aborter = new AbortController();
+
+function githubFetch(url, _aborter: AbortController = null) {
   const token = findGitHubToken();
   if (token && !followRedirect.headers) {
     followRedirect.headers = { authorization: `Bearer ${token}` };
   }
-  return fetch(url, followRedirect);
+  return fetch(
+    url,
+    _aborter
+      ? {
+          ...followRedirect,
+          signal: _aborter.signal,
+        }
+      : followRedirect
+  );
 }
 
+function noop() {}
+let retryCount = 0;
+let didPrintDeleted = false;
 function doExit() {
-  const wasDidRemove = didRemove;
+  let wasExiting = exiting;
+  exiting = true;
 
-  if (!didRemove && !shouldKeep) {
-    tmpobj?.removeCallback();
-    tmpobj = null;
-    didRemove = false;
-    instance?.log("🗑  Deleted temp repo");
-  }
-
-  if (instance?.archive?.destroy) {
-    instance?.archive.destroy();
+  if (!didRemove && !shouldKeep && tmpobj) {
+    try {
+      tmpobj?.removeCallback();
+      tmpobj = null;
+      didRemove = false;
+    } catch (exception) {}
   }
 
   if (instance?._tar) {
-    instance?._tar.abort("none");
-    instance?._tar.removeAllListeners();
+    if (!instance._tar.writableEnded) {
+      try {
+        instance._tar.warn = noop;
+        instance._tar.abort();
+      } catch (exception) {}
+    }
   }
 
-  if (instance?.slowTask) {
-    if (!instance.slowTask.killed) {
-      instance.slowTask.kill("SIGKILL");
+  if (instance?.slowTask && exitBehavior.waitFor !== WaitFor.downloadComplete) {
+    if (instance.slowTask.connected) {
+      try {
+        instance.slowTask.kill();
+        instance.slowTask.disconnect();
+      } catch (exception) {}
     }
+  }
 
-    instance.slowTask.removeAllListeners();
+  if (!wasExiting) aborter.abort();
 
-    instance.slowTask = null;
+  if (!shouldKeep && instance?.destination?.length && retryCount < 10) {
+    rimraf.sync(instance.destination);
+
+    if (fs.existsSync(instance.destination)) {
+      process.nextTick(doExit);
+      // if (process.env.VERBOSE)
+      console.log(`Failed to delete, retry attempt #${retryCount}/10`);
+
+      retryCount++;
+      return;
+    }
   }
 
   if (
-    !wasDidRemove &&
     !shouldKeep &&
     instance?.destination?.length &&
-    fs.existsSync(instance.destination)
+    !fs.existsSync(instance.destination) &&
+    !didPrintDeleted
   ) {
-    fs.rmSync(instance.destination, {
-      recursive: true,
-      force: true,
-    });
+    instance.slowTask = null;
+    instance.log("🗑  Deleted repository");
+    didPrintDeleted = true;
   }
+
+  process.emitWarning = noop;
+  process.exit();
 }
 
 process.once("SIGINT", doExit);
@@ -218,16 +275,21 @@ class Command {
 
     const resp = await fetch(url, {
       redirect: "follow",
+      signal: aborter.signal,
     });
 
     if (!resp.ok || resp.status === 404) {
       return false;
     }
 
+    if (exiting) return;
+
     const text = await resp.text();
 
     if (text.trim().length) {
+      if (exiting) return;
       await fs.promises.mkdir(path.dirname(destination), { recursive: true });
+      if (exiting) return;
       await fs.promises.writeFile(destination, text, "utf8");
       return true;
     }
@@ -261,7 +323,7 @@ class Command {
   }
 
   async _unzip(source: string) {
-    const response = await githubFetch(source);
+    const response = await githubFetch(source, aborter);
     if (response.ok) {
       return response.body;
     } else if (response.status === 403 || response.status === 401) {
@@ -291,22 +353,21 @@ If this is a private repo, consider setting $GITHUB_TOKEN. To save $GITHUB_TOKEN
           (this._tar = tar.x({
             cwd: to,
             strip: 1,
-            onentry(entry) {},
-            onwarn(message, data) {
-              console.warn(message);
-            },
+            "keep-newer-files": true,
+            noMtime: true,
+            // onentry(entry) {},
+            // onwarn(message, data) {},
           }))
         );
 
         archive.on("end", () => {
-          this._tar = null;
+          if (exiting) return;
           this.log("💿 Finished downloading repository!");
           resolve();
           resolve2();
         });
         archive.on("error", (error) => {
-          this._tar = null;
-          if (didRemove) return;
+          if (didRemove || exiting) return;
 
           this.log("💿 Failed to download repository!");
           reject(error);
@@ -481,6 +542,7 @@ access token. To persist it, store it in your shell or the .env shown above.
         this.didUseFallback = true;
         archive = await this._unzip(fallbackSource);
       } catch (exception) {
+        if (exiting) return;
         console.error(
           `Invalid repository link. Tried:\n-  ${source}\n-  ${fallbackSource}`
         );
@@ -506,6 +568,14 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     shouldKeep = cli.flags.keep;
 
+    if (
+      cli.flags.fromscript &&
+      process.env.SAY_DEBUG?.length &&
+      process.platform === "darwin"
+    ) {
+      console.log = (...args) =>
+        childProcess.exec(`say -v "Samantha" "${args.join(" ")}"`);
+    }
     if (help) {
       cli.showHelp(0);
       process.exit(0);
@@ -528,7 +598,6 @@ access token. To persist it, store it in your shell or the .env shown above.
     }
 
     let url = cli.input[0]?.trim() ?? "";
-    let alwaysConfirm = cli.flags.confirm;
 
     if (url.includes("git-peek://")) {
       url = url.replace("git-peek://", "").trim();
@@ -593,14 +662,23 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     const start = new Date().getTime();
 
+    let prefix = link.name + "@" + ref;
+
     tmpobj = tmp.dirSync(
       tempBaseDir?.length
         ? {
             unsafeCleanup: true,
             keep: shouldKeep,
+            prefix,
+            postfix: !cli.flags.keep ? "-peekautodelete" : "",
             tmpdir: path.resolve(process.cwd(), tempBaseDir),
           }
-        : { unsafeCleanup: true, keep: shouldKeep }
+        : {
+            unsafeCleanup: true,
+            keep: shouldKeep,
+            prefix: prefix,
+            postfix: !cli.flags.keep ? "-peekautodelete" : "",
+          }
     );
     this.destination = tmpobj.name;
 
@@ -630,7 +708,7 @@ access token. To persist it, store it in your shell or the .env shown above.
           ref,
           fallback,
           openPath
-        ).catch(console.error),
+        ),
         this.unzip(link.owner, link.name, ref, fallback, tmpobj.name),
       ]);
     } else {
@@ -645,19 +723,36 @@ access token. To persist it, store it in your shell or the .env shown above.
 
     this.editorMode = EditorMode.unknown;
 
+    // VSCode is the happy case.
+    // When passed a folder, "--wait" correctly waits until the Window is closed.
+    // This is NOT the case in Sublime Text.
     if (chosenEditor.includes("code")) {
-      if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
+      exitBehavior.confirm = cli.flags.confirm;
+      exitBehavior.waitFor = WaitFor.childProcessExit;
+      chosenEditor = chosenEditor.replace("--wait", "", "-w", "").trim();
+
       this.editorMode = EditorMode.vscode;
-      editorSpecificCommands.push("--new-window");
+      editorSpecificCommands.push("-w", "-n");
 
       if (specificFile) {
         editorSpecificCommands.push(`-g "${path.resolve(openPath)}":0:0`);
       }
-    } else if (chosenEditor.includes("subl")) {
-      if (!chosenEditor.includes("wait")) chosenEditor += " --wait";
 
+      // So we cannot support auto-deleting on progrma exit immediately with Sublime Text.
+      // Because "--wait" only applies to files. So you'd be looking at a file. You close it.
+      // And bam! All the files are gone.
+      // We don't want that. That's bad UX. So we don't do "--wait" for Sublime Text.
+    } else if (chosenEditor.includes("subl")) {
+      if (cli.flags.fromscript) {
+        exitBehavior.waitFor = WaitFor.downloadComplete;
+      } else {
+        exitBehavior.waitFor = WaitFor.confirm;
+      }
+
+      shouldKeep = true;
       this.editorMode = EditorMode.sublime;
-      editorSpecificCommands.push("--new-window");
+      chosenEditor = chosenEditor.replace("--wait", "", "-w", "").trim();
+      editorSpecificCommands.push("-n");
 
       if (specificFile) {
         editorSpecificCommands.push(`"${path.resolve(openPath)}":0:0`);
@@ -665,13 +760,27 @@ access token. To persist it, store it in your shell or the .env shown above.
       // TODO: handle go to specific line for vim.
     } else if (chosenEditor.includes("vi")) {
       this.editorMode = EditorMode.vim;
+      exitBehavior.confirm = cli.flags.confirm;
+      exitBehavior.waitFor = WaitFor.childProcessExit;
+      // Opening a shell is a little weird when its from the extension
+      // So instead, we just wait for it to download, and
+      // rely on tmp dir deleting to reoslve it
+    } else if (cli.flags.fromscript) {
+      exitBehavior.waitFor = WaitFor.downloadComplete;
+      exitBehavior.confirm = cli.flags.confirm;
+    } else {
+      exitBehavior.waitFor = WaitFor.confirm;
+      exitBehavior.confirm = cli.flags.confirm;
     }
 
     if (
-      (this.editorMode === EditorMode.vim && usingDefaultFile) ||
-      cli.flags.wait
-    )
-      if (this.unzipPromise) await this.unzipPromise;
+      ((this.editorMode === EditorMode.vim && usingDefaultFile) ||
+        cli.flags.wait) &&
+      this.unzipPromise
+    ) {
+      await this.unzipPromise;
+      this.unzipPromise = Promise.resolve(true);
+    }
 
     await new Promise((resolve, reject) => {
       if (this.editorMode === EditorMode.vim) {
@@ -717,33 +826,68 @@ access token. To persist it, store it in your shell or the .env shown above.
           tmpobj.name
         )}" ${editorSpecificCommands.join(" ")}`.trim();
 
-        this.slowTask = childProcess.spawn(cmd, {
-          env: process.env,
-          shell: true,
-          stdio: cli.flags.fromscript ? "ignore" : "inherit",
-          detached: true,
-          cwd: tmpobj.name,
-        });
         let didResolve = false;
 
-        function resolver() {
-          if (!didResolve) {
-            process.stdin.setRawMode(false);
-            process.stdin.resume();
-
-            resolve();
-            didResolve = true;
-          }
+        if (cli.flags.fromscript && process.platform === "win32") {
+          this.slowTask = childProcess.spawn(cmd, {
+            env: process.env,
+            shell: true,
+            windowsHide: true,
+            stdio: "ignore",
+            // This line is important! If detached is true, nothing ever happens.
+            detached: false,
+            cwd: tmpobj.name,
+          });
+        } else {
+          this.slowTask = childProcess.spawn(cmd, {
+            env: process.env,
+            shell: true,
+            windowsHide: true,
+            stdio: cli.flags.fromscript ? "ignore" : "inherit",
+            detached: exitBehavior.waitFor === WaitFor.childProcessExit,
+            cwd: tmpobj.name,
+          });
         }
 
-        this.slowTask.once("exit", resolver);
-        this.slowTask.once("error", reject);
+        if (exitBehavior.waitFor === WaitFor.downloadComplete) {
+          if (cli.flags.fromscript && process.platform === "win32") {
+            this.slowTask.unref();
+            this.slowTask = null;
+
+            this.unzipPromise.then(
+              () => resolve(),
+              () => resolve()
+            );
+          } else {
+            this.unzipPromise.then(
+              () => resolve(),
+              () => resolve()
+            );
+          }
+          // This is mostly just VSCode right now.
+        } else {
+          function resolver() {
+            if (!didResolve) {
+              process.stdin.setRawMode(false);
+              process.stdin.resume();
+
+              resolve();
+            }
+          }
+
+          this.slowTask.once("exit", resolver);
+          this.slowTask.once("error", reject);
+          this.slowTask.once("close", resolver);
+          this.slowTask.once("disconnect", resolver);
+        }
       }
     });
 
-    if (shouldKeep) {
+    if (shouldKeep || exitBehavior.waitFor === WaitFor.downloadComplete) {
       didRemove = true;
-    } else if (this.editorMode === EditorMode.unknown || alwaysConfirm) {
+    }
+
+    if (!cli.flags.keep && exitBehavior.waitFor === WaitFor.confirm) {
       // TODO: remove this when https://github.com/vadimdemedes/ink/issues/415 is resolved.
       const _disableWarning = process.emitWarning;
       process.emitWarning = () => {};
@@ -754,11 +898,12 @@ access token. To persist it, store it in your shell or the .env shown above.
     }
 
     doExit();
-    process.exit();
-    setTimeout(() => {
-      process.emitWarning = () => {};
-      process.kill(process.pid, "SIGTERM");
-    }, 1000);
+
+    // setTimeout(() => {
+    //   doExit();
+    //   process.emitWarning = () => {};
+    //   process.nextTick(() => process.kill(process.pid, "SIGTERM"));
+    // }, 10000);
   }
 }
 

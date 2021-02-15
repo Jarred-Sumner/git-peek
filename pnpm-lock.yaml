@@ -1,27 +1,33 @@
 devDependencies:
   '@types/js-yaml': 4.0.0
-  '@types/node': 14.14.27
+  '@types/lodash': 4.14.168
+  '@types/lodash-es': 4.17.4
+  '@types/node': 14.14.28
   '@types/rimraf': 3.0.0
   '@types/tar': 4.0.4
+  '@types/tmp': 0.2.0
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
+  abort-controller: 3.0.0
   chalk: 4.1.0
   dotenv: 8.2.0
   dotenv-cli: 4.0.0
-  edge-js: 15.5.2
   esbuild: 0.8.43
   git-url-parse: 11.4.4
   ink: 3.0.8_react@17.0.1
   ink-select-input: 4.2.0_ink@3.0.8+react@17.0.1
   ink-text-input: 4.0.1_ink@3.0.8+react@17.0.1
   keypress: 0.2.1
+  lodash-es: 4.17.20
   meow: 9.0.0
   node-fetch: 2.6.1
   normalize-git-url: 3.0.2
   open-editor: 3.0.0
+  ora: 5.3.0
   pkg: 4.4.9
   promise-any-polyfill: 0.1.2
   qs: 6.9.6
   react: 17.0.1
+  register-url-windows: 1.0.24
   release-it: 14.3.0
   rimraf: 3.0.2
   simple-plist: 1.1.1
@@ -254,6 +260,16 @@ packages:
     dev: true
     resolution:
       integrity: sha512-MPtoySlAZQ37VoLaPcTHCu1RWJ4llDkULYZIzOYxlhxBqYPB0RsRlmMU0R6tahtFe27mIdkHV+551ZWV4PLmVw==
+  /@types/lodash-es/4.17.4:
+    dependencies:
+      '@types/lodash': 4.14.168
+    dev: true
+    resolution:
+      integrity: sha512-BBz79DCJbD2CVYZH67MBeHZRX++HF+5p8Mo5MzjZi64Wac39S3diedJYHZtScbRVf4DjZyN6LzA0SB0zy+HSSQ==
+  /@types/lodash/4.14.168:
+    dev: true
+    resolution:
+      integrity: sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
   /@types/lru-cache/4.1.1:
     dev: true
     resolution:
@@ -294,6 +310,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-Ecfmo4YDQPwuqTCl1yBxLV5ihKfRlkBmzUEDcfIRvDxOTGQEeikr317Ln7Gcv0tjA8dVgKI3rniqW2G1OyKDng==
+  /@types/node/14.14.28:
+    dev: true
+    resolution:
+      integrity: sha512-lg55ArB+ZiHHbBBttLpzD07akz0QPrZgUODNakeC09i62dnrywr9mFErHuaPlB6I7z+sEbK+IYmplahvplCj2g==
   /@types/normalize-package-data/2.4.0:
     dev: true
     resolution:
@@ -322,6 +342,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-0Xv+xcmkTsOZdIF4yCnd7RkOOyfyqPaqJ7RZFKnwdxfDbkN3eAAE9sHl8zJFqBz4VhxolW9EErbjR1oyH7jK2A==
+  /@types/tmp/0.2.0:
+    dev: true
+    resolution:
+      integrity: sha512-flgpHJjntpBAdJD43ShRosQvNC0ME97DCfGvZEDlAThQmnerRXrLbX6YgzRBQCZTthET9eAWFAMaYP0m0Y4HzQ==
   /@types/yoga-layout/1.9.2:
     dev: true
     resolution:
@@ -370,6 +394,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-KD2zyRZEBNs9PJ3/ob7zx0CvR4wM0oV4G5s5gFfPwmM74GpFbUN2pAAivP2AXnUrJ14Nkh8NumNKOzOyc4LbFQ==
+  /abort-controller/3.0.0:
+    dependencies:
+      event-target-shim: 5.0.1
+    dev: true
+    engines:
+      node: '>=6.5'
+    resolution:
+      integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==
   /agentkeepalive/3.4.1:
     dependencies:
       humanize-ms: 1.2.1
@@ -994,23 +1026,6 @@ packages:
     dev: true
     resolution:
       integrity: sha1-OoOpBOVDUyh4dMVkt1SThoSamMk=
-  /edge-cs/1.2.1:
-    dev: true
-    engines:
-      node: '>= 0.8'
-    requiresBuild: true
-    resolution:
-      integrity: sha1-vRqezblO8O1AyJRYIEZ0nlcEXlo=
-  /edge-js/15.5.2:
-    dependencies:
-      edge-cs: 1.2.1
-      nan: 2.14.2
-    dev: true
-    engines:
-      node: '>= 6'
-    requiresBuild: true
-    resolution:
-      integrity: sha512-9mR9oDcOl/VCyHOL3KlvJYEtKJ/4btqGBWnqN6hqQEalBkk1u1PKjCS2mmwgwfxmsleXy8rrccu9Gnyn3LO9LA==
   /emoji-regex/7.0.3:
     dev: true
     resolution:
@@ -1094,6 +1109,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
+  /event-target-shim/5.0.1:
+    dev: true
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
   /execa/4.1.0:
     dependencies:
       cross-spawn: 7.0.3
@@ -1952,6 +1973,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
+  /lodash-es/4.17.20:
+    dev: true
+    resolution:
+      integrity: sha512-JD1COMZsq8maT6mnuz1UMV0jvYD0E0aUsSOdrr1/nAG3dhqQXwRRgeW0cSqH1U43INKcqxaiVIQNOUDld7gRDA==
   /lodash.isequal/4.5.0:
     dev: true
     resolution:
@@ -2177,10 +2202,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
-  /nan/2.14.2:
-    dev: true
-    resolution:
-      integrity: sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
   /node-fetch/2.6.1:
     dev: true
     engines:
@@ -2694,7 +2715,7 @@ packages:
   /readable-stream/3.6.0:
     dependencies:
       inherits: 2.0.4
-      string_decoder: 1.1.1
+      string_decoder: 1.3.0
       util-deprecate: 1.0.2
     dev: true
     engines:
@@ -2722,6 +2743,16 @@ packages:
     dev: true
     resolution:
       integrity: sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
+  /register-url-windows/1.0.24:
+    dependencies:
+      find-up: 5.0.0
+      shell-quote: 1.7.2
+      tmp: 0.2.1
+      tmp-promise: 3.0.2
+      which: 2.0.2
+    dev: true
+    resolution:
+      integrity: sha512-qACesKc/eUUst0842za9AX8UczSpENwGYqAPDwiB9FlFwwqm8EV+oZYe/qK7Q4VEG0kfmqUh1PLAtUx1Xq6LMQ==
   /registry-auth-token/4.2.1:
     dependencies:
       rc: 1.2.8
@@ -3115,6 +3146,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==
+  /string_decoder/1.3.0:
+    dependencies:
+      safe-buffer: 5.2.1
+    dev: true
+    resolution:
+      integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
   /strip-ansi/5.2.0:
     dependencies:
       ansi-regex: 4.1.0
@@ -3203,6 +3240,12 @@ packages:
     dev: true
     resolution:
       integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
+  /tmp-promise/3.0.2:
+    dependencies:
+      tmp: 0.2.1
+    dev: true
+    resolution:
+      integrity: sha512-OyCLAKU1HzBjL6Ev3gxUeraJNlbNingmi8IrHHEsYH8LTmEuhvYfqvhn2F/je+mjf4N58UmZ96OMEy1JanSCpA==
   /tmp/0.0.33:
     dependencies:
       os-tmpdir: 1.0.2
@@ -3555,28 +3598,34 @@ packages:
       integrity: sha512-YnOmtSbv4MTf7RGJMK0FvZ+KD8OEe/J5BNnR0GHhD8J/XcG/Qvxgszm0Un6FTHWW4uHlTgP0IztiXQnGyIR45g==
 specifiers:
   '@types/js-yaml': ^4.0.0
+  '@types/lodash': ^4.14.168
+  '@types/lodash-es': ^4.17.4
   '@types/node': latest
   '@types/rimraf': ^3.0.0
   '@types/tar': ^4.0.4
+  '@types/tmp': ^0.2.0
   '@vercel/fetch': ^6.1.0
+  abort-controller: ^3.0.0
   chalk: ^4.1.0
   dotenv: ^8.2.0
   dotenv-cli: ^4.0.0
-  edge-js: ^15.5.2
   esbuild: ^0.8.43
   git-url-parse: ^11.4.4
   ink: ^3.0.8
   ink-select-input: ^4.2.0
   ink-text-input: ^4.0.1
   keypress: ^0.2.1
+  lodash-es: ^4.17.20
   meow: ^9.0.0
   node-fetch: ^2.6.1
   normalize-git-url: ^3.0.2
   open-editor: ^3.0.0
+  ora: ^5.3.0
   pkg: ^4.4.9
   promise-any-polyfill: ^0.1.2
   qs: ^6.9.6
   react: ^17.0.1
+  register-url-windows: 1.0.24
   release-it: '*'
   rimraf: ^3.0.2
   simple-plist: ^1.1.1

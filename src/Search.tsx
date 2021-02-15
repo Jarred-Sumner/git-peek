@@ -197,6 +197,8 @@ export function renderInk(query: string) {
 
     applyGitHubToken();
 
+    process.stdin.setRawMode(true);
+
     try {
       result = render(
         <SearchInput onSelect={didSelect} initialQuery={query} />,

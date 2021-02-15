@@ -119,7 +119,7 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
     -r, --register        [default: false] Register the git-peek:// url protocol
                           This allows the "Open" buttons to work on
                           github.com once you\'ve installed the extension. Only
-                          supported on macOS (Windows coming soon).
+                          supported on macOS and Windows
 
     -o, --out=           [default: system temp directory] output directory to
                           store repository files in. If youre cloning a large
@@ -172,9 +172,28 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
-This was inspired by [github1s.com](https://github.com/conwnet/github1s).
-
 ### Changelog
+
+#### `1.3.0`
+
+##### Windows
+
+- Add Windows support for registering the `git-peek://` protocol!! (related: https://github.com/Jarred-Sumner/register-url-windows). This enables 1-click open buttons on GitHub. Run `git peek --register`
+- Add `./bin/git-peek-win32.exe` that runs `git-peek` without the CMD.exe window appearing (source code is in the `win32` folder). It just receives `git-peek://` URLs, so if you run it by itself, nothing will show up and you'll be kind of confused.
+
+##### Mac
+
+- Prevent homebrew from running cleanup and auto update when you run `git-peek --register`. So that it runs faster.
+- Prevent the applescript from stealing focus when you click the open button in the browser extension. To use this, you'll have to re-run `git-peek --register` if you haven't already.
+
+#### Misc
+
+- Temp folder names now start with the repository@branchOrRef name e.g. `esbuild@main`, so its clearer what you're looking at in your editor. Its still a long string, but the beginning at least makes more sense now.
+- Temp folder names now end in `peekautodelete`. This will later be used for a `git-peek purge` command that will automatically delete any folders it finds in the temp directory containing `"peekautodelete"` incase anything was missed.
+- Fix bug where sometimes empty text would appear in your editor when it guessed the default filename wrong. Please open an issue if you see this happen again.
+- Will now confirm closing for Sublime Text instead of failing to detect when it closed and then hanging. Sublime Text's `--wait` CLI argument does not support folders, so it's pretty tough to detect when the user closes Sublime Text without some kind of process monitoring.
+- Add sourcemap file because why not
+- Made the "Deleted repository" log double check that the repository is no longer there before logging it.
 
 - `1.2.2`: Prevent process from sticking around longer than necessary if its still extracting the repository when its supposed to close. Add `fs.rmSync` polyfill
 
@@ -222,3 +241,5 @@ Removed using the `$GITHUB_TOKEN` from `~/.hubs/config`.
 - `1.1.11`: When available, use github access token for github API requests to enable private repositories to work. To enable this, either set a `GITHUB_TOKEN` environment variable or if you've installed [hub](https://github.com/github/hub), it will automatically use `oauth_token` from `$HOME/.config/hub`. In other words, if you use `hub`, this should just work by default.
 - `1.1.10`: Fix vim
 - `1.1.9`: Fix Windows
+
+Originally inspired by [github1s.com](https://github.com/conwnet/github1s).

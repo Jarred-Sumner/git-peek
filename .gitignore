@@ -18,3 +18,14 @@ tmp
 */**.applescript
 *.app
 *.applescript
+*.tgz
+package-lock.json
+.vs
+
+win32/**/bin
+win32/**/obj
+
+.DS_Store
+*/**.DS_Store
+
+*/**/mono*.json
