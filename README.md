@@ -174,7 +174,7 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 
 ### Changelog
 
-#### `1.2.3`
+#### `1.3.0 - 1.3.2`
 
 ##### Windows
 
