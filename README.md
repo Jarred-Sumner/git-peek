@@ -20,7 +20,7 @@ But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-p
 - [Windows x64 – 1.2.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.2.2/git-peek.exe)
 - [macOS x64 – 1.2.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.2.2/git-peek-macOS)
 
-**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Only works on macOS for now and doesn't work on vim (terminal editor without a temrinal? how)
+**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
 
 ## Usage:
 
