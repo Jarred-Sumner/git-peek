@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime;
 
 namespace git_peek_windows_launcher
 {
@@ -45,12 +46,14 @@ namespace git_peek_windows_launcher
       startInfo.CreateNoWindow = true;
       startInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-     
+
       using (Process p = Process.Start(startInfo))
       {
         p.WaitForExit();
+        p.Close();
+        Environment.Exit(0);
       }
-     
+
     }
   }
 }

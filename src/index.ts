@@ -219,12 +219,26 @@ function doExit() {
   if (!wasExiting) aborter.abort();
 
   if (!shouldKeep && instance?.destination?.length && retryCount < 10) {
-    rimraf.sync(instance.destination);
+    // Error: ENOTEMPTY: directory not empty, rmdir
+    if (process.platform === "win32") {
+      try {
+        rimraf.sync(instance.destination + "/*/**");
+        rimraf.sync(instance.destination);
+      } catch (exception) {
+        if (process.env.VERBOSE) console.error(exception);
+      }
+    } else {
+      try {
+        rimraf.sync(instance.destination);
+      } catch (exception) {
+        if (process.env.VERBOSE) console.error(exception);
+      }
+    }
 
     if (fs.existsSync(instance.destination)) {
-      process.nextTick(doExit);
-      // if (process.env.VERBOSE)
-      console.log(`Failed to delete, retry attempt #${retryCount}/10`);
+      setTimeout(doExit, 32);
+      if (process.env.VERBOSE)
+        console.log(`Failed to delete, retry attempt #${retryCount}/10`);
 
       retryCount++;
       return;
@@ -842,6 +856,10 @@ to the appropriate URLs.
 
         let didResolve = false;
 
+        const cwd =
+          process.platform === "win32"
+            ? path.join(tmpobj.name, "../")
+            : tmpobj.anme;
         if (cli.flags.fromscript && process.platform === "win32") {
           this.slowTask = childProcess.spawn(cmd, {
             env: process.env,
@@ -850,7 +868,8 @@ to the appropriate URLs.
             stdio: "ignore",
             // This line is important! If detached is true, nothing ever happens.
             detached: false,
-            cwd: tmpobj.name,
+            // Windows will refuse to delete if there is an active process in the folder
+            cwd,
           });
         } else if (cli.flags.fromscript && process.platform === "darwin") {
           this.slowTask = childProcess.spawn(cmd, {
@@ -860,7 +879,7 @@ to the appropriate URLs.
             stdio: "pipe",
             // This line is important! If detached is true, nothing ever happens.
             detached: true,
-            cwd: tmpobj.name,
+            cwd,
           });
         } else {
           this.slowTask = childProcess.spawn(cmd, {
@@ -872,7 +891,7 @@ to the appropriate URLs.
                 ? "ignore"
                 : "inherit",
             detached: exitBehavior.waitFor === WaitFor.childProcessExit,
-            cwd: tmpobj.name,
+            cwd,
           });
         }
 
