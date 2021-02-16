@@ -180,6 +180,10 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 
 ### Changelog
 
+##### `1.3.6`
+
+- Fix windows path bug
+
 ##### `1.3.5`
 
 - Improve start performance by about 25% via code splitting
