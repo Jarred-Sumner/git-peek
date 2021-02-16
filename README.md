@@ -23,8 +23,8 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases). These are about 20% faster than npm:
 
-- [Windows x64 – 1.3.12](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.12/git-peek.exe)
-- [macOS x64 – 1.3.12](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.12/git-peek-macOS) (same as installing from homebrew)
+- [Windows x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek.exe)
+- [macOS x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek-macOS) (same as installing from homebrew)
 
 **NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
 
@@ -179,6 +179,12 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
 ### Changelog
+
+##### `1.3.8 - 1.3.13`
+
+- Improve reliability of `git peek -r` on macOS
+- Support skipping JSDelivr requests when we know in advance its a private repository
+- Fix the homebrew build
 
 ##### `1.3.7`
 
