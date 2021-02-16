@@ -15,9 +15,10 @@ import type { Writable } from "stream";
 import zlib from "zlib";
 import rimraf from "rimraf";
 
+global.fetch = require("node-fetch");
+
 if (typeof global.AbortController === "undefined") {
-  global.AbortController = require("abort-controller").AbortController;
-  global.AbortSignal = require("abort-controller").AbortSignal;
+  require("abortcontroller-polyfill/dist/polyfill-patch-fetch");
 }
 
 // This is to trick esbuild into code splitting these files

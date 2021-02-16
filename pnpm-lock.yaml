@@ -1,3 +1,5 @@
+dependencies:
+  pnpm: 5.17.2
 devDependencies:
   '@types/js-yaml': 4.0.0
   '@types/lodash': 4.14.168
@@ -8,6 +10,7 @@ devDependencies:
   '@types/tmp': 0.2.0
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
   abort-controller: 3.0.0
+  abortcontroller-polyfill: 1.7.1
   chalk: 4.1.0
   dotenv: 8.2.0
   dotenv-cli: 4.0.0
@@ -22,7 +25,6 @@ devDependencies:
   node-fetch: 2.6.1
   normalize-git-url: 3.0.2
   open-editor: 3.0.0
-  ora: 5.3.0
   pkg: 4.4.9
   promise-any-polyfill: 0.1.2
   qs: 6.9.6
@@ -402,6 +404,10 @@ packages:
       node: '>=6.5'
     resolution:
       integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==
+  /abortcontroller-polyfill/1.7.1:
+    dev: true
+    resolution:
+      integrity: sha512-yml9NiDEH4M4p0G4AcPkg8AAa4mF3nfYF28VQxaokpO67j9H7gWgmsVWJ/f1Rn+PzsnDYvzJzWIQzCqDKRvWlA==
   /agentkeepalive/3.4.1:
     dependencies:
       humanize-ms: 1.2.1
@@ -2533,6 +2539,13 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-GpgvHHocGRyQm74b6FWEZZVRroHKE1I0/BTjAmySaohK+cUn+hZpbqXkc3KWgW3gQYkqcQej35FohcT0FRlkRQ==
+  /pnpm/5.17.2:
+    dev: false
+    engines:
+      node: '>=10.16'
+    hasBin: true
+    resolution:
+      integrity: sha512-X0WEumozKhlYZObL1E+Nmi67f+ZMS+fbpE6vAymlazT2lx0B+Agw9iJsdd//tjAqIzxcsxxgZScx0EIPc42Ulw==
   /prelude-ls/1.1.2:
     dev: true
     engines:
@@ -3606,6 +3619,7 @@ specifiers:
   '@types/tmp': ^0.2.0
   '@vercel/fetch': ^6.1.0
   abort-controller: ^3.0.0
+  abortcontroller-polyfill: ^1.7.1
   chalk: ^4.1.0
   dotenv: ^8.2.0
   dotenv-cli: ^4.0.0
@@ -3620,8 +3634,8 @@ specifiers:
   node-fetch: ^2.6.1
   normalize-git-url: ^3.0.2
   open-editor: ^3.0.0
-  ora: ^5.3.0
   pkg: ^4.4.9
+  pnpm: ^5.17.2
   promise-any-polyfill: ^0.1.2
   qs: ^6.9.6
   react: ^17.0.1
