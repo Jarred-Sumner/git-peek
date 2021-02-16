@@ -26,7 +26,7 @@ But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-p
 - [Windows x64 – 1.3.12](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.12/git-peek.exe)
 - [macOS x64 – 1.3.12](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.12/git-peek-macOS) (same as installing from homebrew)
 
-**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
+**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
 
 ## Usage:
 

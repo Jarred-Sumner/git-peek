@@ -463,24 +463,10 @@ OPTIONS
 
   -h, --help           show CLI help
 
-ENVIRONMENT VARIABLES:
-  $EDITOR: ${process.env.EDITOR?.length ? process.env.EDITOR : "not set"}
-  $GITHUB_TOKEN: ${
-    process.env.GITHUB_TOKEN?.length
-      ? new Array(process.env.GITHUB_TOKEN.length).fill("*").join("")
-      : "not set"
-  }
-  $GITHUB_BASE_DOMAIN: ${
-    process.env.GITHUB_BASE_DOMAIN?.length
-      ? process.env.GITHUB_BASE_DOMAIN
-      : "not set"
-  }
-  $GITHUB_API_DOMAIN: ${
-    process.env.GITHUB_API_DOMAIN?.length
-      ? process.env.GITHUB_API_DOMAIN
-      : "not set"
-  }
-  .env: ${DOTENV_EXISTS ? "✅" : "❌"} ${GIT_PEEK_ENV_PATH}
+  -env, --environment  print location and current directory of environment
+                       variables
+
+${envHelp()}
 
 For use with private GitHub repositories, set $GITHUB_TOKEN to a personal
 access token. To persist it, store it in your shell or the .env shown above.
@@ -490,6 +476,10 @@ to the appropriate URLs.
 `.trim(),
       {
         flags: {
+          environment: {
+            type: "boolean",
+            alias: "env",
+          },
           fromscript: {
             type: "boolean",
             default: false,
@@ -600,6 +590,12 @@ to the appropriate URLs.
 
     shouldKeep = cli.flags.keep;
 
+    if (cli.flags.environment) {
+      console.log(envHelp());
+      process.exit(0);
+      return;
+    }
+
     if (
       cli.flags.fromscript &&
       process.env.SAY_DEBUG?.length &&
@@ -633,6 +629,10 @@ to the appropriate URLs.
 
     if (url.includes("git-peek://")) {
       url = url.replace("git-peek://", "").trim();
+
+      if (url.includes("noCDN")) {
+        ALLOW_JSDELIVR = false;
+      }
     }
 
     // url = url.replace("/blob/", "/tree/");
@@ -979,6 +979,35 @@ to the appropriate URLs.
   }
 }
 
+function envHelp() {
+  return `
+ENVIRONMENT VARIABLES:
+
+  .env file: ${DOTENV_EXISTS ? "✅" : "❌"} ${GIT_PEEK_ENV_PATH}
+
+  $EDITOR: ${process.env.EDITOR?.length ? process.env.EDITOR : "not set"}
+
+  $GITHUB_TOKEN: ${
+    process.env.GITHUB_TOKEN?.length
+      ? new Array(process.env.GITHUB_TOKEN.length).fill("*").join("")
+      : "not set"
+  }
+
+  $GITHUB_BASE_DOMAIN: ${
+    process.env.GITHUB_BASE_DOMAIN?.length
+      ? process.env.GITHUB_BASE_DOMAIN
+      : "github.com"
+  }
+
+  $GITHUB_API_DOMAIN: ${
+    process.env.GITHUB_API_DOMAIN?.length
+      ? process.env.GITHUB_API_DOMAIN
+      : "api.github.com"
+  }
+
+  `;
+}
+
 process.on("unhandledRejection", exceptionLogger);
 process.on("unhandledException", exceptionLogger);
 
@@ -988,6 +1017,6 @@ if (DOTENV_EXISTS) {
 
 const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com";
 const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com";
-const ALLOW_JSDELIVR = GITHUB_API_DOMAIN === "api.github.com";
+let ALLOW_JSDELIVR = GITHUB_API_DOMAIN === "api.github.com";
 instance = new Command();
 instance.run();
