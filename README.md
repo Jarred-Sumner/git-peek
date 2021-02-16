@@ -17,8 +17,8 @@ npm install -g @jarred/git-peek
 
 But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases):
 
-- [Windows x64 – 1.3.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.2/git-peek.exe)
-- [macOS x64 – 1.3.2](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.2/git-peek-macOS)
+- [Windows x64 – 1.3.4](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.4/git-peek.exe)
+- [macOS x64 – 1.3.4](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.4/git-peek-macOS)
 
 **NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds an "Open" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
 
