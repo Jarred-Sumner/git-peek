@@ -15,16 +15,16 @@ Homebrew:
 brew install jarred-sumner/git-peek/git-peek
 ```
 
-Installing from npm makes updates easy:
+For Windows and Linux, install from npm directly:
 
 ```
 npm install -g @jarred/git-peek
 ```
 
-But there are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases). These are about 20% faster than npm:
+There are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases). Homebrew installs this. Its about 20% faster to start up.
 
 - [Windows x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek.exe)
-- [macOS x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek-macOS) (same as installing from homebrew)
+- [macOS x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek-macOS)
 
 **NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
 
