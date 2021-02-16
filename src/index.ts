@@ -20,6 +20,11 @@ if (typeof global.AbortController === "undefined") {
   global.AbortSignal = require("abort-controller").AbortSignal;
 }
 
+// This is to trick esbuild into code splitting these files
+const SEARCH_PATH = "./Search";
+const REGISTER_PROTOCOL_PATH = "./registerProtocol";
+const CONFIRM_PROMPT_PATH = "./confirmPrompt";
+
 const AbortController = global.AbortController;
 
 let exiting = false;
@@ -331,7 +336,7 @@ class Command {
     // TODO: remove this when https://github.com/vadimdemedes/ink/issues/415 is resolved.
     const _disableWarning = process.emitWarning;
     process.emitWarning = () => {};
-    const { renderInk } = require("./Search");
+    const { renderInk } = require(SEARCH_PATH);
     process.emitWarning = _disableWarning;
 
     return renderInk(input);
@@ -619,7 +624,7 @@ to the appropriate URLs.
     } = cli;
 
     if (register) {
-      await require("./registerProtocol").register(
+      await require(REGISTER_PROTOCOL_PATH).register(
         await fetchEditor(_editor, false)
       );
       return;
@@ -937,7 +942,7 @@ to the appropriate URLs.
       // TODO: remove this when https://github.com/vadimdemedes/ink/issues/415 is resolved.
       const _disableWarning = process.emitWarning;
       process.emitWarning = () => {};
-      const { renderConfirm } = require("src/confirmPrompt");
+      const { renderConfirm } = require(CONFIRM_PROMPT_PATH);
       process.emitWarning = _disableWarning;
       const shouldRemove = await renderConfirm();
       shouldKeep = didRemove = !shouldRemove;

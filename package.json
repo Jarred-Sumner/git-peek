@@ -50,7 +50,10 @@
   },
   "files": [
     "bin/git-peek",
-    "bin/git-peek-win32.exe"
+    "bin/git-peek-win32.exe",
+    "bin/confirmPrompt",
+    "bin/Search",
+    "bin/registerProtocol"
   ],
   "homepage": "https://github.com/Jarred-Sumner/git-peek",
   "keywords": [
@@ -58,7 +61,19 @@
     "git",
     "github",
     "preview git",
-    "editor"
+    "editor",
+    "peek",
+    "clone",
+    "fetch",
+    "github-api",
+    "github-client",
+    "pull",
+    "git-pull",
+    "git pull",
+    "open-editor",
+    "open-in",
+    "open-in-editor",
+    "open"
   ],
   "license": "MIT",
   "main": "lib/index.js",
