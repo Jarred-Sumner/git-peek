@@ -15,9 +15,9 @@ import type { Writable } from "stream";
 import zlib from "zlib";
 import rimraf from "rimraf";
 
-const _SEARCH_PATH = "src/Search";
-const _REGISTER_PROTOCOL_PATH = "src/registerProtocol";
-const _CONFIRM_PROMPT_PATH = "src/confirmPrompt";
+const _SEARCH_PATH = path.join(__dirname, "Search");
+const _REGISTER_PROTOCOL_PATH = path.join(__dirname, "registerProtocol");
+const _CONFIRM_PROMPT_PATH = path.join(__dirname, "confirmPrompt");
 
 function resolveAfterDelay(delay) {
   return new Promise((resolve, reject) => setTimeout(resolve, delay));
