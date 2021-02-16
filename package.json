@@ -1,6 +1,6 @@
 {
   "name": "@jarred/git-peek",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "author": "Jarred Sumner @Jarred-Sumner",
   "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
