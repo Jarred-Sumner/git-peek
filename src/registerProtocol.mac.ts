@@ -4,6 +4,7 @@ import child_process from "child_process";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
+import tmp from "tmp";
 
 const TEMP_DIR = "/Applications/git-peek.app/Contents/temp";
 import { PROTOCOL } from "./PROTOCOL";
@@ -29,12 +30,14 @@ export async function register(editor: string) {
 
   console.log("Generating AppleScript handler.");
   const appleScriptCode = await generateAppleScript(gitPeekShim, TEMP_DIR);
-  const appleScriptFile = path.join(process.cwd(), "git-peek.applescript");
-  const appleScriptApp = path.join(process.cwd(), "git-peek.app");
+  const _tmp = tmp.dirSync({ unsafeCleanup: true });
+  const appleScriptFile = path.join(_tmp.name, "git-peek.applescript");
+  const appleScriptApp = path.join(_tmp.name, "git-peek.app");
+
   await fs.promises.writeFile(appleScriptFile, appleScriptCode, "utf8");
   console.log(chalk.gray(appleScriptCode));
   console.log("Compiling .applescript to .app");
-  execSync(`osacompile -o git-peek.app ${appleScriptFile}`);
+  execSync(`osacompile -o ${appleScriptApp} ${appleScriptFile}`);
   console.log("Updating Info.plist to support URL handler");
   const infoPlist = path.join(appleScriptApp, "contents/Info.plist");
   const info = plist.readFileSync(infoPlist);
