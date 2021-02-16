@@ -21,9 +21,9 @@ if (typeof global.AbortController === "undefined") {
 }
 
 // This is to trick esbuild into code splitting these files
-const SEARCH_PATH = "./Search";
-const REGISTER_PROTOCOL_PATH = "./registerProtocol";
-const CONFIRM_PROMPT_PATH = "./confirmPrompt";
+const SEARCH_PATH = path.join(__dirname, "Search.js");
+const REGISTER_PROTOCOL_PATH = path.join(__dirname, "registerProtocol.js");
+const CONFIRM_PROMPT_PATH = path.join(__dirname, "confirmPrompt.js");
 
 const AbortController = global.AbortController;
 
