@@ -6,7 +6,8 @@ import path from "path";
 import chalk from "chalk";
 import tmp from "tmp";
 
-const TEMP_DIR = "/Applications/git-peek.app/Contents/temp";
+const APP_DIR = path.join(process.env.HOME, "Applications", "git-peek.app");
+
 import { PROTOCOL } from "./PROTOCOL";
 
 export function execSync(cmd) {
@@ -24,12 +25,12 @@ export async function register(editor: string) {
   }
 
   const gitPeekShim = path.join(
-    "/Applications/git-peek.app/Contents/",
+    `${process.env.HOME}/Applications/git-peek.app/Contents/`,
     "git-peek-shim"
   );
 
   console.log("Generating AppleScript handler.");
-  const appleScriptCode = await generateAppleScript(gitPeekShim, TEMP_DIR);
+  const appleScriptCode = await generateAppleScript(gitPeekShim);
   const _tmp = tmp.dirSync({ unsafeCleanup: true });
   const appleScriptFile = path.join(_tmp.name, "git-peek.applescript");
   const appleScriptApp = path.join(_tmp.name, "git-peek.app");
@@ -51,22 +52,22 @@ export async function register(editor: string) {
   info["LSBackgroundOnly"] = true;
   plist.writeFileSync(infoPlist, info);
   console.log("Updated Info.plist");
-  console.log("Moving application to /Applications/git-peek.app");
-  if (fs.existsSync("/Applications/git-peek.app")) {
-    fs.rmSync("/Applications/git-peek.app", {
-      recursive: true,
-      force: true,
-    });
+  console.log(`Moving application to ${APP_DIR}`);
+
+  try {
+    if (fs.existsSync(APP_DIR)) {
+      fs.rmSync(APP_DIR, {
+        recursive: true,
+        force: true,
+      });
+    }
+  } catch (exception) {
+    if (process.env.VERBOSE) {
+      console.warn("[WARN]", exception);
+    }
   }
 
-  if (fs.existsSync("/Applications/git-peek.app")) {
-    fs.rmSync("/Applications/git-peek.app", { force: true, recursive: true });
-  }
-
-  fs.renameSync(appleScriptApp, "/Applications/git-peek.app");
-
-  console.log(chalk.gray(`mkdir ${TEMP_DIR}`));
-  fs.mkdirSync(TEMP_DIR);
+  fs.renameSync(appleScriptApp, APP_DIR);
 
   const shim = `#!/bin/bash
 
@@ -106,7 +107,7 @@ export USER=${JSON.stringify(process.env.USER) || ""}
   }
 
   console.log(chalk.green("✅ Registered git-peek:// protocol successfully."));
-  console.log('To unregister, just delete "/Applications/git-peek.app".');
+  console.log(`To unregister, just delete "${APP_DIR}".`);
   console.log("To test it, run this:");
   console.log("   " + chalk.blue(`open git-peek://Jarred-Sumner/git-peek`));
   if (editor.includes("vi")) {
@@ -116,7 +117,7 @@ export USER=${JSON.stringify(process.env.USER) || ""}
   }
 }
 
-export async function generateAppleScript(shimLocation: string, tempDir) {
+export async function generateAppleScript(shimLocation: string) {
   return `
 
 on open location this_URL
