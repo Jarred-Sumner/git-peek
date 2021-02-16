@@ -9,6 +9,12 @@ Use it when you want to browse or search other people's code with your own edito
 
 ## Installation:
 
+Homebrew:
+
+```
+brew install jarred-sumner/git-peek/git-peek
+```
+
 Installing from npm makes updates easy:
 
 ```
