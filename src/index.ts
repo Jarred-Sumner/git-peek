@@ -15,18 +15,18 @@ import type { Writable } from "stream";
 import zlib from "zlib";
 import rimraf from "rimraf";
 
-global.fetch = require("node-fetch");
+// global.fetch = require("node-fetch");
 
-if (typeof global.AbortController === "undefined") {
-  require("abortcontroller-polyfill/dist/polyfill-patch-fetch");
-}
+// if (typeof global.AbortController === "undefined") {
+//   require("abortcontroller-polyfill/dist/polyfill-patch-fetch");
+// }
 
 // This is to trick esbuild into code splitting these files
 const SEARCH_PATH = path.join(__dirname, "Search.js");
 const REGISTER_PROTOCOL_PATH = path.join(__dirname, "registerProtocol.js");
 const CONFIRM_PROMPT_PATH = path.join(__dirname, "confirmPrompt.js");
 
-const AbortController = global.AbortController;
+// const AbortController = global.AbortController;
 
 let exiting = false;
 
@@ -171,22 +171,12 @@ enum EditorMode {
   vim = 3,
 }
 
-let aborter = new AbortController();
-
-function githubFetch(url, _aborter: AbortController = null) {
+function githubFetch(url) {
   const token = findGitHubToken();
   if (token && !followRedirect.headers) {
     followRedirect.headers = { authorization: `Bearer ${token}` };
   }
-  return fetch(
-    url,
-    _aborter
-      ? {
-          ...followRedirect,
-          signal: _aborter.signal,
-        }
-      : followRedirect
-  );
+  return fetch(url, followRedirect);
 }
 
 function noop() {}
@@ -221,8 +211,6 @@ function doExit() {
       } catch (exception) {}
     }
   }
-
-  if (!wasExiting) aborter.abort();
 
   if (!shouldKeep && instance?.destination?.length && retryCount < 10) {
     // Error: ENOTEMPTY: directory not empty, rmdir
@@ -296,7 +284,7 @@ class Command {
 
     const resp = await fetch(url, {
       redirect: "follow",
-      signal: aborter.signal,
+      // signal: aborter.signal,
     });
 
     if (!resp.ok || resp.status === 404) {
@@ -344,7 +332,7 @@ class Command {
   }
 
   async _unzip(source: string) {
-    const response = await githubFetch(source, aborter);
+    const response = await githubFetch(source);
     if (response.ok) {
       return response.body;
     } else if (response.status === 403 || response.status === 401) {
@@ -637,6 +625,8 @@ to the appropriate URLs.
       url = url.replace("git-peek://", "").trim();
     }
 
+    // url = url.replace("/blob/", "/tree/");
+
     let link;
 
     let isMalformed = false;
@@ -688,11 +678,15 @@ to the appropriate URLs.
     }
 
     if (url && url.length && isPullRequest(url)) {
+      if (process.env.VERBOSE) this.log("Resolving ref from pull request...");
       const [newOwner, newName, newRef] = await resolveRefFromPullRequest(url);
       link.name = newName;
       link.owner = newOwner;
       ref = newRef;
     }
+
+    if (process.env.VERBOSE)
+      this.log(`Fetching ${link.owner}/${link.name}#${ref}...`);
 
     const start = new Date().getTime();
 
