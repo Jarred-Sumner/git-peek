@@ -7,7 +7,6 @@ devDependencies:
   '@types/tar': 4.0.4
   '@types/tmp': 0.2.0
   '@vercel/fetch': 6.1.0_node-fetch@2.6.1
-  abortcontroller-polyfill: 1.7.1
   chalk: 4.1.0
   dotenv: 8.2.0
   dotenv-cli: 4.0.0
@@ -394,10 +393,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-KD2zyRZEBNs9PJ3/ob7zx0CvR4wM0oV4G5s5gFfPwmM74GpFbUN2pAAivP2AXnUrJ14Nkh8NumNKOzOyc4LbFQ==
-  /abortcontroller-polyfill/1.7.1:
-    dev: true
-    resolution:
-      integrity: sha512-yml9NiDEH4M4p0G4AcPkg8AAa4mF3nfYF28VQxaokpO67j9H7gWgmsVWJ/f1Rn+PzsnDYvzJzWIQzCqDKRvWlA==
   /agentkeepalive/3.4.1:
     dependencies:
       humanize-ms: 1.2.1
@@ -3602,7 +3597,6 @@ specifiers:
   '@types/tar': ^4.0.4
   '@types/tmp': ^0.2.0
   '@vercel/fetch': ^6.1.0
-  abortcontroller-polyfill: ^1.7.1
   chalk: ^4.1.0
   dotenv: ^8.2.0
   dotenv-cli: ^4.0.0

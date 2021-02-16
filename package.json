@@ -1,6 +1,6 @@
 {
   "name": "@jarred/git-peek",
-  "version": "1.3.8",
+  "version": "1.3.7",
   "author": "Jarred Sumner @Jarred-Sumner",
   "description": "Quickly preview remote Git repositories in your local editor",
   "bin": {
@@ -16,11 +16,9 @@
     "@types/tar": "^4.0.4",
     "@types/tmp": "^0.2.0",
     "@vercel/fetch": "^6.1.0",
-    "abortcontroller-polyfill": "^1.7.1",
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
     "dotenv-cli": "^4.0.0",
-    "pnpm": "^5.17.2",
     "esbuild": "^0.8.43",
     "git-url-parse": "^11.4.4",
     "ink": "^3.0.8",
@@ -33,6 +31,7 @@
     "normalize-git-url": "^3.0.2",
     "open-editor": "^3.0.0",
     "pkg": "^4.4.9",
+    "pnpm": "^5.17.2",
     "promise-any-polyfill": "^0.1.2",
     "qs": "^6.9.6",
     "react": "^17.0.1",
@@ -86,8 +85,8 @@
     "release": "dotenv release-it",
     "bt": "pnpm build && git-peek Jarred-Sumner/git-peek",
     "copy-win32": "cp win32/git-peek-windows-launcher/git-peek-windows-launcher/git-peek-windows-launcher/bin/net5.0/win-x64/publish/git-peek-win32.exe bin/git-peek-win32.exe",
-    "pkg-mac": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./bin/git-peek -o ./brew/git-peek-macOS",
-    "pkg-windows": "pkg --public --options='no-warnings' -t 'node14-windows-x64' ./bin/git-peek -o ./brew/git-peek.exe",
+    "pkg-mac": "pkg --public --options='no-warnings' -t 'node14-macos-x64' ./pkgbin/git-peek -o ./brew/git-peek-macOS",
+    "pkg-windows": "pkg --public --options='no-warnings' -t 'node14-windows-x64' ./pkgbin/git-peek -o ./brew/git-peek.exe",
     "pkg-all": "pnpm pkg-mac; pnpm pkg-windows",
     "prerelease": "pnpm pkg-all",
     "build-cs": "dotnet publish -c Release --self-contained false"

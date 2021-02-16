@@ -15,6 +15,13 @@ import type { Writable } from "stream";
 import zlib from "zlib";
 import rimraf from "rimraf";
 
+const _SEARCH_PATH = "src/Search";
+const _REGISTER_PROTOCOL_PATH = "src/registerProtocol";
+const _CONFIRM_PROMPT_PATH = "src/confirmPrompt";
+
+function resolveAfterDelay(delay) {
+  return new Promise((resolve, reject) => setTimeout(resolve, delay));
+}
 // global.fetch = require("node-fetch");
 
 // if (typeof global.AbortController === "undefined") {
@@ -22,9 +29,6 @@ import rimraf from "rimraf";
 // }
 
 // This is to trick esbuild into code splitting these files
-const SEARCH_PATH = path.join(__dirname, "Search.js");
-const REGISTER_PROTOCOL_PATH = path.join(__dirname, "registerProtocol.js");
-const CONFIRM_PROMPT_PATH = path.join(__dirname, "confirmPrompt.js");
 
 // const AbortController = global.AbortController;
 
@@ -137,6 +141,8 @@ async function resolveRefFromPullRequest(url: string) {
 
 async function resolveRefFromURL(owner: string, repo: string) {
   const apiURL = `https://${GITHUB_API_DOMAIN}/repos/${owner}/${repo}`;
+  if (process.env.VERBOSE)
+    console.log("Couldn't auto-detect ref, asking github what the ref is");
 
   const result = await githubFetch(apiURL);
   if (!result.ok) {
@@ -349,38 +355,42 @@ If this is a private repo, consider setting $GITHUB_TOKEN. To save $GITHUB_TOKEN
   didUseFallback = false;
   _tar: Writable;
   unzipPromise: Promise<any>;
+  archiveStartPromise: Promise<any>;
   unzip(owner, name, ref, fallback, to: string) {
     return new Promise((resolve2, reject2) => {
-      this.unzipPromise = new Promise(async (resolve, reject) => {
-        const archive = await this.getArchive(
-          `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${ref}`,
-          `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${fallback}`
-        );
+      this.archiveStartPromise = new Promise((resolve3, reject3) => {
+        this.unzipPromise = new Promise(async (resolve, reject) => {
+          const archive = await this.getArchive(
+            `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${ref}`,
+            `https://${GITHUB_API_DOMAIN}/repos/${owner}/${name}/tarball/${fallback}`
+          );
+          resolve3();
 
-        this.log("⏳ Extracting repository to temp folder...");
-        archive.pipe(
-          (this._tar = tar.x({
-            cwd: to,
-            strip: 1,
-            "keep-newer-files": true,
-            noMtime: true,
-            // onentry(entry) {},
-            // onwarn(message, data) {},
-          }))
-        );
+          this.log("⏳ Extracting repository to temp folder...");
+          archive.pipe(
+            (this._tar = tar.x({
+              cwd: to,
+              strip: 1,
+              "keep-newer-files": true,
+              noMtime: true,
+              // onentry(entry) {},
+              // onwarn(message, data) {},
+            }))
+          );
 
-        archive.on("end", () => {
-          if (exiting) return;
-          this.log("💿 Finished downloading repository!");
-          resolve();
-          resolve2();
-        });
-        archive.on("error", (error) => {
-          if (didRemove || exiting) return;
+          archive.on("end", () => {
+            if (exiting) return;
+            this.log("💿 Finished downloading repository!");
+            resolve();
+            resolve2();
+          });
+          archive.on("error", (error) => {
+            if (didRemove || exiting) return;
 
-          this.log("💿 Failed to download repository!");
-          reject(error);
-          reject2(error);
+            this.log("💿 Failed to download repository!");
+            reject(error);
+            reject2(error);
+          });
         });
       });
     });
@@ -604,7 +614,7 @@ to the appropriate URLs.
     }
 
     if (version) {
-      cli.showVersion();
+      console.log(require("package.json").version);
       process.exit(0);
     }
 
@@ -668,7 +678,7 @@ to the appropriate URLs.
       link.resource === GITHUB_BASE_DOMAIN &&
       (branch === "default" ||
         defaultBranch ||
-        (branch === "" && cli.flags.fromscript))
+        (link.ref === "" && cli.flags.fromscript))
     ) {
       ref = await resolveRefFromURL(link.owner, link.name);
     } else if (branch !== "") {
@@ -709,6 +719,7 @@ to the appropriate URLs.
           }
     );
     this.destination = tmpobj.name;
+    let chosenEditorPromise = fetchEditor(_editor, false);
 
     didRemove = false;
     process.once("beforeExit", doExit);
@@ -728,28 +739,43 @@ to the appropriate URLs.
     if (link.resource === GITHUB_BASE_DOMAIN) {
       let fallback = ref === "main" ? "master" : "main";
 
-      await Promise.any([
-        this.prefetchGithub(
+      let prefetchPromise;
+      if (ALLOW_JSDELIVR) {
+        prefetchPromise = this.prefetchGithub(
           link.name,
           link.owner,
           specificFile,
           ref,
           fallback,
           openPath
-        ),
-        this.unzip(link.owner, link.name, ref, fallback, tmpobj.name),
-      ]);
+        );
+      }
+      let unzipPromise = this.unzip(
+        link.owner,
+        link.name,
+        ref,
+        fallback,
+        tmpobj.name
+      );
+      let archiveStartPromise = this.archiveStartPromise.then(() =>
+        resolveAfterDelay(100)
+      );
+
+      if (prefetchPromise) {
+        await Promise.any([prefetchPromise, unzipPromise, archiveStartPromise]);
+      } else {
+        await Promise.any([unzipPromise, archiveStartPromise]);
+      }
     } else {
       await this.clone(link.href, tmpobj.name);
     }
-
-    let chosenEditor = await fetchEditor(_editor, false);
 
     let editorSpecificCommands = [];
 
     // console.log(path.join(tmpobj.name, specificFile));
 
     this.editorMode = EditorMode.unknown;
+    let chosenEditor = await chosenEditorPromise;
 
     // VSCode is the happy case.
     // When passed a folder, "--wait" correctly waits until the Window is closed.
@@ -962,5 +988,6 @@ if (DOTENV_EXISTS) {
 
 const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com";
 const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com";
+const ALLOW_JSDELIVR = GITHUB_API_DOMAIN === "api.github.com";
 instance = new Command();
 instance.run();
