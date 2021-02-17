@@ -23,8 +23,8 @@ npm install -g @jarred/git-peek
 
 There are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/releases). Homebrew installs this. Its about 20% faster to start up.
 
-- [Windows x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek.exe)
-- [macOS x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek-macOS)
+- [Windows x64 – 1.3.14](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.14/git-peek.exe)
+- [macOS x64 – 1.3.14](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.14/git-peek-macOS)
 
 **NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal.
 
