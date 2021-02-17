@@ -35,6 +35,7 @@ devDependencies:
   tmp: 0.2.1
   typescript: 4.2.0-beta
   which: 2.0.2
+  which-term: 1.0.2
 lockfileVersion: 5.2
 packages:
   /@babel/code-frame/7.12.13:
@@ -3468,6 +3469,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
+  /which-term/1.0.2:
+    dev: true
+    resolution:
+      integrity: sha512-CHLOzvYiWvvKzx85Su/ZNHDHbTzGqv71RJWX/+z6Aeeu0K8BVdGIcefi7BFPeUiRwffnH2JV3kxdn5i31i+6qw==
   /which/2.0.2:
     dependencies:
       isexe: 2.0.0
@@ -3625,3 +3630,4 @@ specifiers:
   tmp: ^0.2.1
   typescript: beta
   which: ^2.0.2
+  which-term: ^1.0.2

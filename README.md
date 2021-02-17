@@ -26,7 +26,7 @@ There are also [precompiled binaries](https://github.com/Jarred-Sumner/git-peek/
 - [Windows x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek.exe)
 - [macOS x64 – 1.3.13](https://github.com/Jarred-Sumner/git-peek/releases/download/1.3.13/git-peek-macOS)
 
-**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal. Note: vim and Linux are both not supported yet
+**NEW**: [Try the chrome/firefox extension](https://github.com/Jarred-Sumner/1-click-from-github-to-editor). It adds a "Peek" button to pull requests, files, and repositories, so you can read code with your editor without needing to copy-paste into the terminal.
 
 ## Usage:
 
@@ -118,7 +118,7 @@ If you paste a link to a file on GitHub, it will quickly open the file in your l
 
   OPTIONS
     -e, --editor=editor  [default: auto] editor to open with, possible values:
-                          auto, code, subl, vim, vi, code-insiders.
+                          auto, code, subl, nvim, vim, vi, code-insiders.
                           By default, it will search $EDITOR. If not found, it
                           will try code, then subl, then vim.
 
@@ -179,6 +179,11 @@ If you pass it a git repository rather than a Github url, it does a [partial clo
 When your editor closes or you close `git peek`, it deletes the repository from your computer.
 
 ### Changelog
+
+##### 1.3.14
+
+- Auto-detect `nvim`
+- Add `/n?vim?/` support for Peek (browser extension) on macoS.
 
 ##### `1.3.8 - 1.3.13`
 

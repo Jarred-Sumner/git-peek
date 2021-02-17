@@ -18,6 +18,7 @@ import rimraf from "rimraf";
 const _SEARCH_PATH = path.join(__dirname, "Search");
 const _REGISTER_PROTOCOL_PATH = path.join(__dirname, "registerProtocol");
 const _CONFIRM_PROMPT_PATH = path.join(__dirname, "confirmPrompt");
+import { Terminal } from "which-term";
 
 function resolveAfterDelay(delay) {
   return new Promise((resolve, reject) => setTimeout(resolve, delay));
@@ -41,7 +42,7 @@ const HOME =
 
 const GIT_PEEK_ENV_PATH = path.join(HOME, ".git-peek");
 
-let editorsToTry = ["code", "subl", "code-insiders", "vim", "vi"];
+let editorsToTry = ["code", "subl", "nvim", "code-insiders", "vim", "vi"];
 
 let shouldKeep = false;
 
@@ -436,7 +437,7 @@ OPTIONS
   }] editor to open with, possible values:
                         auto, ${editorsToTry.join(", ")}.
                         By default, it will search $EDITOR. If not found, it
-                        will try code, then subl, then vim.
+                        will try code, then subl, then nvim then vim.
 
   -d                    [default: false] Ask the GitHub API
                         for the default_branch to clone.
@@ -757,13 +758,13 @@ to the appropriate URLs.
         fallback,
         tmpobj.name
       );
-      let archiveStartPromise = this.archiveStartPromise.then(() =>
-        resolveAfterDelay(100)
-      );
 
       if (prefetchPromise) {
-        await Promise.any([prefetchPromise, unzipPromise, archiveStartPromise]);
+        await Promise.any([prefetchPromise, unzipPromise]);
       } else {
+        let archiveStartPromise = this.archiveStartPromise.then(() =>
+          resolveAfterDelay(100)
+        );
         await Promise.any([unzipPromise, archiveStartPromise]);
       }
     } else {
@@ -828,7 +829,9 @@ to the appropriate URLs.
     }
 
     if (
-      ((this.editorMode === EditorMode.vim && usingDefaultFile) ||
+      ((this.editorMode === EditorMode.vim &&
+        usingDefaultFile &&
+        !cli.flags.fromscript) ||
         cli.flags.wait) &&
       this.unzipPromise
     ) {
@@ -837,7 +840,7 @@ to the appropriate URLs.
     }
 
     await new Promise((resolve, reject) => {
-      if (this.editorMode === EditorMode.vim) {
+      if (this.editorMode === EditorMode.vim && !cli.flags.fromscript) {
         process.stdin.setRawMode(true);
         process.stdin.pause();
 
@@ -863,6 +866,94 @@ to the appropriate URLs.
             resolve();
             didResolve = true;
           }
+        }
+
+        this.slowTask.once("close", resolver);
+        this.slowTask.once("exit", resolver);
+        this.slowTask.once("error", resolver);
+      } else if (
+        this.editorMode === EditorMode.vim &&
+        process.platform === "darwin"
+      ) {
+        let outerCommand: string;
+        let innerCommand =
+          chosenEditor +
+          " " +
+          // TODO: is this bad?
+          (usingDefaultFile ? specificFile : specificFile) +
+          " " +
+          editorSpecificCommands.join(" ");
+
+        let fileToWatch =
+          CHOSEN_TERMINAL === Terminal.alacritty
+            ? null
+            : tmp.fileSync({ discardDescriptor: true, detachDescriptor: true });
+
+        switch (CHOSEN_TERMINAL) {
+          case Terminal.iTerm: {
+            outerCommand = `echo '#!/bin/bash\n${innerCommand}; echo $PPID $PID > ${fileToWatch.name}; sleep 1; exit;' > /tmp/git-peek.sh; chmod a+x /tmp/git-peek.sh; open -F -W -a iTerm /tmp/git-peek.sh`;
+            break;
+          }
+
+          case Terminal.alacritty: {
+            outerCommand = `echo '#!/bin/bash\ncd ${
+              tmpobj.name
+            };\n${innerCommand};' > /tmp/git-peek.sh; chmod a+x /tmp/git-peek.sh; ${
+              process.env.ALACRITTY_PATH ||
+              "/Applications/Alacritty.app/Contents/MacOS/alacritty"
+            } -e /tmp/git-peek.sh`;
+            break;
+          }
+
+          // Hyper doesn't support this!
+          // case Terminal.Hyper: {
+          //   outerCommand = `open -a "${which.sync(
+          //     "hyper"
+          //   )}" . -W -n --args ${innerCommand}`;
+          //   break;
+          // }
+
+          default: {
+            outerCommand = `echo '#!/bin/bash\n${innerCommand}; echo $PPID $PID > ${fileToWatch.name}; sleep 1; exit' > /tmp/git-peek.sh; chmod a+x /tmp/git-peek.sh; open -n -W -F -a Terminal /tmp/git-peek.sh`;
+            break;
+          }
+        }
+
+        this.slowTask = childProcess.spawn(outerCommand, {
+          env: process.env,
+          shell: true,
+          windowsHide: true,
+          stdio: "ignore",
+          // This line is important! If detached is true, nothing ever happens.
+          detached: false,
+          // Windows will refuse to delete if there is an active process in the folder
+        });
+
+        if (process.env.VERBOSE) console.log("RUN", outerCommand);
+
+        let watcher;
+        let pid = this.slowTask.pid;
+        let didResolve = false;
+        const resolver = () => {
+          if (!didResolve) {
+            if (watcher) {
+              fs.unwatchFile(fileToWatch.name);
+              watcher = null;
+            }
+
+            if (!this.slowTask.killed && this.slowTask.connected)
+              this.slowTask.kill("SIGTERM");
+
+            if (process?.stdin?.setRawMode) process.stdin.setRawMode(false);
+            if (process?.stdin?.resume) process.stdin.resume();
+
+            resolve();
+            didResolve = true;
+          }
+        };
+
+        if (fileToWatch) {
+          watcher = fs.watchFile(fileToWatch.name, {}, resolver);
         }
 
         this.slowTask.once("close", resolver);
@@ -1005,6 +1096,16 @@ ENVIRONMENT VARIABLES:
       : "api.github.com"
   }
 
+  $OPEN_IN_TERMINAL: ${
+    process.env.OPEN_IN_TERMINAL?.length
+      ? process.env.OPEN_IN_TERMINAL
+      : "not set"
+  }
+
+  $ALACRITTY_PATH: ${
+    process.env.ALACRITTY_PATH?.length ? process.env.ALACRITTY_PATH : "not set"
+  }
+
   `;
 }
 
@@ -1015,6 +1116,7 @@ if (DOTENV_EXISTS) {
   dotenv.config({ path: GIT_PEEK_ENV_PATH });
 }
 
+const CHOSEN_TERMINAL: Terminal = require("./terminal").default;
 const GITHUB_BASE_DOMAIN = process.env.GITHUB_BASE_DOMAIN || "github.com";
 const GITHUB_API_DOMAIN = process.env.GITHUB_API_DOMAIN || "api.github.com";
 let ALLOW_JSDELIVR = GITHUB_API_DOMAIN === "api.github.com";

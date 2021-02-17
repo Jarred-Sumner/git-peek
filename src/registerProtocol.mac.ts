@@ -9,6 +9,7 @@ import tmp from "tmp";
 const APP_DIR = path.join(process.env.HOME, "Applications", "git-peek.app");
 
 import { PROTOCOL } from "./PROTOCOL";
+import terminal from "src/terminal";
 
 export function execSync(cmd) {
   console.log("$ ", chalk.gray(cmd));
@@ -19,6 +20,7 @@ export async function register(editor: string) {
   try {
     await which("duti");
   } catch (exception) {
+    ``;
     const installCommand = `HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install duti`;
     console.log(`duti not installed. Installing with homebrew.`);
     execSync(installCommand);
@@ -74,8 +76,11 @@ export PATH=$PATH:${JSON.stringify(process.env.PATH) || ""}
 export EDITOR=${JSON.stringify(editor)}
 export HOME=${JSON.stringify(process.env.HOME) || ""}
 export USER=${JSON.stringify(process.env.USER) || ""}
+export OPEN_IN_TERMINAL=${JSON.stringify(terminal)}
 
-.${JSON.stringify(await which("git-peek"))} --fromscript $1 $2 $3 $4 & disown
+OPEN_IN_TERMINAL=${JSON.stringify(terminal)} .${JSON.stringify(
+    await which("git-peek")
+  )} --fromscript $1 $2 $3 $4 & disown
 `;
 
   console.log(
@@ -86,6 +91,12 @@ export USER=${JSON.stringify(process.env.USER) || ""}
   console.log(`Wrote shim file (${chalk.gray(gitPeekShim)})`);
   fs.writeFileSync(gitPeekShim, shim, "utf8");
   execSync("chmod +x " + gitPeekShim);
+
+  if (fs.existsSync("/Applications/git-peek.app")) {
+    try {
+      fs.rmSync("/Applications/git-peek.app", { force: true });
+    } catch (exception) {}
+  }
 
   console.log("Registering URL handler...");
   execSync(`duti -s com.apple.ScriptEditor.id.git-peek ${PROTOCOL}`);
@@ -102,16 +113,23 @@ export USER=${JSON.stringify(process.env.USER) || ""}
       console.warn("Failed to add protocol to Google Chrome. Its okay.");
     }
   }
+  console.log(`To unregister, just delete "${APP_DIR}".`);
 
   console.log(chalk.green("✅ Registered git-peek:// protocol successfully."));
-  console.log(`To unregister, just delete "${APP_DIR}".`);
-  console.log("To test it, run this:");
-  console.log("   " + chalk.blue(`open git-peek://Jarred-Sumner/git-peek`));
+
   if (editor.includes("vi")) {
-    console.warn(
-      "vim/vi not supported (no terminal window will be open), but if you know a way to run a terminal window from the AppleScript please do submit a PR!"
+    console.log(
+      `Defaulting to ${chalk.blue(editor)} in ${chalk.blue(
+        terminal
+      )}\n${chalk.gray("To change the editor, set")} EDITOR= ${chalk.gray(
+        "in"
+      )} ${process.env.HOME}/.git-peek.\n${chalk.gray(
+        "To change the terminal, set"
+      )} OPEN_IN_TERMINAL= iterm apple alacritty.`
     );
   }
+  console.log("To test it, run this:");
+  console.log("   " + chalk.blue(`open git-peek://Jarred-Sumner/git-peek`));
 }
 
 export async function generateAppleScript(shimLocation: string) {
