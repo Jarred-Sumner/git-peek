@@ -180,11 +180,11 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 
 ### Changelog
 
-##### 1.3.14 - 1.3.17
+##### `1.3.14 - 1.3.17`
 
 - Fix $EDITOR detection bug
 
-##### 1.3.14
+##### `1.3.14`
 
 - Auto-detect `nvim`
 - Add `/n?vim?/` support for Peek (browser extension) on macoS.
