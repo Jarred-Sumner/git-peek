@@ -65,6 +65,10 @@ if (!fs.rmSync) {
 }
 
 async function fetchEditor(_editor, silent) {
+  if (process.env.EDITOR && _editor === "auto") {
+    return process.env.EDITOR;
+  }
+
   let chosenEditor =
     !_editor || _editor === "auto" ? process.env.EDITOR : _editor;
 
@@ -1113,7 +1117,14 @@ process.on("unhandledRejection", exceptionLogger);
 process.on("unhandledException", exceptionLogger);
 
 if (DOTENV_EXISTS) {
-  dotenv.config({ path: GIT_PEEK_ENV_PATH });
+  const result = dotenv.config({ path: GIT_PEEK_ENV_PATH });
+  if (result?.parsed["EDITOR"]) {
+    process.env.EDITOR = result.parsed["EDITOR"];
+  }
+
+  if (process.env.VERBOSE_UNSAFE) {
+    console.log("Loaded .env:\n", result.parsed);
+  }
 }
 
 const CHOSEN_TERMINAL: Terminal = require("./terminal").default;
