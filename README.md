@@ -23,9 +23,8 @@ npm install -g @jarred/git-peek
 
 1-click "Peek" button for GitHub:
 
-- [Download peek for Chrome](https://chrome.google.com/webstore/detail/peek-%E2%80%93-github-to-local-ed/lipffmbhaajmndiglgmmcfldgolfaooj)
-
-- [Download peek for Firefox](https://addons.mozilla.org/en-US/firefox/addon/git-peek-for-github/)
+- [**Download peek for Chrome**](https://chrome.google.com/webstore/detail/peek-%E2%80%93-github-to-local-ed/lipffmbhaajmndiglgmmcfldgolfaooj)
+- [**Download peek for Firefox**](https://addons.mozilla.org/en-US/firefox/addon/git-peek-for-github/)
 
 ## Usage:
 
