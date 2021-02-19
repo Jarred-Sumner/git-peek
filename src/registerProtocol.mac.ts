@@ -68,6 +68,11 @@ export async function register(editor: string) {
 
   fs.renameSync(appleScriptApp, APP_DIR);
 
+  let alacrittyPath = "";
+  try {
+    alacrittyPath = `export ALACRITTY_PATH="${await which("alacritty")}"`;
+  } catch (exception) {}
+
   const shim = `#!/bin/bash
 
 # AppleScript might run as a different user/environment variables.
@@ -77,6 +82,7 @@ export EDITOR=${JSON.stringify(editor)}
 export HOME=${JSON.stringify(process.env.HOME) || ""}
 export USER=${JSON.stringify(process.env.USER) || ""}
 export OPEN_IN_TERMINAL=${JSON.stringify(terminal)}
+${alacrittyPath}
 
 OPEN_IN_TERMINAL=${JSON.stringify(terminal)} .${JSON.stringify(
     await which("git-peek")
