@@ -26,7 +26,7 @@ export async function register(editor: string) {
     execSync(installCommand);
   }
 
-  const gitPeekShim = path.join(APP_DIR, "Contents", "git-peek-shim");
+  const gitPeekShim = path.join(APP_DIR, "Contents/MacOS", "git-peek-shim");
 
   console.log("Generating AppleScript handler.");
   const appleScriptCode = await generateAppleScript(gitPeekShim);

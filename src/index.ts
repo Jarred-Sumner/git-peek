@@ -42,7 +42,18 @@ const HOME =
 
 const GIT_PEEK_ENV_PATH = path.join(HOME, ".git-peek");
 
-let editorsToTry = ["code", "subl", "nvim", "code-insiders", "vim", "vi"];
+let PLATFORM_SPECIFIC_EDITORS = {
+  darwin: ["BBEdit"],
+};
+let editorsToTry = [
+  "code",
+  "subl",
+  "nvim",
+  "code-insiders",
+  ...(PLATFORM_SPECIFIC_EDITORS[process.platform] || []),
+  "vim",
+  "vi",
+];
 
 let shouldKeep = false;
 
@@ -180,6 +191,7 @@ enum EditorMode {
   vscode = 1,
   sublime = 2,
   vim = 3,
+  bbedit = 4,
 }
 
 function githubFetch(url) {
@@ -817,6 +829,15 @@ to the appropriate URLs.
         editorSpecificCommands.push(`"${path.resolve(openPath)}":0:0`);
       }
       // TODO: handle go to specific line for vim.
+    } else if (chosenEditor.includes("BBEdit")) {
+      this.editorMode = EditorMode.bbedit;
+      exitBehavior.confirm = cli.flags.confirm;
+      exitBehavior.waitFor = WaitFor.childProcessExit;
+      chosenEditor = chosenEditor.replace("--wait", "", "-w", "").trim();
+      editorSpecificCommands.push("--wait");
+      // Opening a shell is a little weird when its from the extension
+      // So instead, we just wait for it to download, and
+      // rely on tmp dir deleting to reoslve it
     } else if (chosenEditor.includes("vi")) {
       this.editorMode = EditorMode.vim;
       exitBehavior.confirm = cli.flags.confirm;
@@ -996,10 +1017,11 @@ to the appropriate URLs.
           this.slowTask = childProcess.spawn(cmd, {
             env: process.env,
             shell: true,
-            windowsHide: true,
-            stdio: "pipe",
-            // This line is important! If detached is true, nothing ever happens.
-            detached: true,
+            stdio:
+              exitBehavior.waitFor !== WaitFor.childProcessExit
+                ? "ignore"
+                : "inherit",
+            detached: exitBehavior.waitFor === WaitFor.childProcessExit,
             cwd,
           });
         } else {

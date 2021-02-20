@@ -178,6 +178,11 @@ When your editor closes or you close `git peek`, it deletes the repository from 
 
 ### Changelog
 
+##### `1.3.18`
+
+- Add support for BBCode on macOS
+- Adjust location for the shim that opens git-peek on macOS from extension (thanks @JayBrown)
+
 ##### `1.3.14 - 1.3.17`
 
 - Fix $EDITOR detection bug
